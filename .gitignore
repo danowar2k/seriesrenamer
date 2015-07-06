@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Backup/Renamer.sln
+/Backup/Renamer
+/Renamer/bin/Debug
+/Renamer/obj/Debug
+/Renamer/ObjectListView/bin/Debug
+/Renamer/ObjectListView/obj/Debug

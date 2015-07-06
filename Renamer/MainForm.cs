@@ -40,7 +40,7 @@ namespace Renamer
     /// <summary>
     /// Main Form
     /// </summary>
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         /// <summary>
         /// Settings class contains some stuff which can't be stored in config file for one reason or another
@@ -72,16 +72,16 @@ namespace Renamer
         /// </summary>
         private List<string> args;
 
-        protected static Form1 instance;
+        protected static MainForm instance;
         private static object m_lock = new object();
         
-        public static Form1 Instance
+        public static MainForm Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    lock (m_lock) { if (instance == null) instance = new Form1(null); }
+                    lock (m_lock) { if (instance == null) instance = new MainForm(null); }
                 }
                 return instance;
             }
@@ -106,7 +106,7 @@ namespace Renamer
         /// GUI constructor
         /// </summary>
         /// <param name="args">program arguments</param>
-        public Form1(string[] args) {
+        public MainForm(string[] args) {
             this.args = new List<string>(args);
             InitializeComponent();
         }
@@ -462,7 +462,8 @@ namespace Renamer
 
         #region GUI-Events
         //Main Initialization
-        private void Form1_Load(object sender, EventArgs e) {
+        private void MainForm_Load(object sender, EventArgs e)
+        {
             settings = Settings.Instance;
             this.initMyLoggers();
 
@@ -602,7 +603,8 @@ namespace Renamer
         }
 
         //Auto column resize by storing column width ratios at resize start
-        private void Form1_ResizeBegin(object sender, EventArgs e) {
+        private void MainForm_ResizeBegin(object sender, EventArgs e)
+        {
             if (Helper.ReadBool(Config.ResizeColumns)) {
                 StoreColumnRatios();
             }
@@ -628,7 +630,8 @@ namespace Renamer
         }
 
         //Auto column resize, restore Column width ratios at resize end (to make sure!)
-        private void Form1_ResizeEnd(object sender, EventArgs e) {
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
             if (Helper.ReadBool(Config.ResizeColumns)) {
                 if (lstEntries != null && lstEntries.Columns.Count > 0 && columnsizes != null)
                 {
@@ -641,7 +644,8 @@ namespace Renamer
         }
 
         //Auto column resize, restore Column width ratios during resize
-        private void Form1_Resize(object sender, EventArgs e) {
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
             if (this.Visible) {
                 if (Helper.ReadBool(Config.ResizeColumns)) {
                     if (lstEntries != null && lstEntries.Columns.Count >0 && columnsizes != null) {
@@ -928,7 +932,8 @@ namespace Renamer
         }
 
         //Cleanup, save some stuff etc
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
             Helper.WriteProperty(Config.LastSubProvider, cbSubs.SelectedItem.ToString());
 
             //Save column order and sizes
@@ -2004,7 +2009,7 @@ namespace Renamer
 
 
 
-        #region Functions remaining in Form1
+        #region Functions remaining in MainForm
         private void UpdateList(bool clear)
         {
             lstEntries.ClearObjects();
@@ -2208,7 +2213,7 @@ namespace Renamer
             else if (LastTask == Task.DownloadData && !e.Cancelled)
             {
                 ShownameSearch ss = new ShownameSearch(DataGenerator.Results);
-                if (ss.ShowDialog(Form1.Instance) == DialogResult.OK)
+                if (ss.ShowDialog(MainForm.Instance) == DialogResult.OK)
                 {
                     DataGenerator.Results = ss.Results;
                     foreach (DataGenerator.ParsedSearch ps in DataGenerator.Results)

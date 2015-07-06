@@ -14,7 +14,7 @@
 
 namespace Renamer
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Erforderliche Designervariable.
@@ -43,7 +43,7 @@ namespace Renamer
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.scContainer = new System.Windows.Forms.SplitContainer();
             this.lblFileListingProgress = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -919,7 +919,7 @@ namespace Renamer
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -927,13 +927,13 @@ namespace Renamer
             this.Controls.Add(this.scContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(944, 506);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Series Renamer";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.ResizeBegin += new System.EventHandler(this.Form1_ResizeBegin);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Resize += new System.EventHandler(this.Form1_Resize);
-            this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
+            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
+            this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.scContainer.Panel1.ResumeLayout(false);
             this.scContainer.Panel1.PerformLayout();
             this.scContainer.Panel2.ResumeLayout(false);

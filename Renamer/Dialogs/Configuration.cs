@@ -226,7 +226,7 @@ namespace Renamer.Dialogs
             DialogResult = DialogResult.OK;
             if (Clearlog)
             {
-                Form1.Instance.initMyLoggers();
+                MainForm.Instance.initMyLoggers();
                 Logger.Instance.LogMessage("Cleared log window because logging settings changed.", LogLevel.INFO);
             }
             Close();

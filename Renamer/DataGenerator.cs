@@ -574,18 +574,18 @@ namespace Renamer
                     return;
                 }
 
-                if (Form1.Instance.InvokeRequired)
+                if (MainForm.Instance.InvokeRequired)
                 {
-                    Form1.Instance.Invoke(new EventHandler(delegate
+                    MainForm.Instance.Invoke(new EventHandler(delegate
                     {
-                        Form1.Instance.lblFileListingProgress.Visible = false;
-                        Form1.Instance.progressBar1.Visible = true;
+                        MainForm.Instance.lblFileListingProgress.Visible = false;
+                        MainForm.Instance.progressBar1.Visible = true;
                     }));
                 }
                 else
                 {
-                    Form1.Instance.lblFileListingProgress.Visible = false;
-                    Form1.Instance.progressBar1.Visible = true;
+                    MainForm.Instance.lblFileListingProgress.Visible = false;
+                    MainForm.Instance.progressBar1.Visible = true;
                 }
 
                 //some declarations already for speed

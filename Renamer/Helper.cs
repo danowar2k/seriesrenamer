@@ -477,16 +477,16 @@ namespace Renamer
             }            
             //weird threading issues force me to create a new var here which is no reference
             int count2 = count;
-            if (Form1.Instance.lblFileListingProgress.InvokeRequired)
+            if (MainForm.Instance.lblFileListingProgress.InvokeRequired)
             {
-                Form1.Instance.lblFileListingProgress.Invoke(new EventHandler(delegate
+                MainForm.Instance.lblFileListingProgress.Invoke(new EventHandler(delegate
                 {
-                    Form1.Instance.lblFileListingProgress.Text = "Found " + count2 + " files so far...";
+                    MainForm.Instance.lblFileListingProgress.Text = "Found " + count2 + " files so far...";
                 }));
             }
             else
             {
-                Form1.Instance.lblFileListingProgress.Text = "Found " + count2 + " files so far...";
+                MainForm.Instance.lblFileListingProgress.Text = "Found " + count2 + " files so far...";
             }
             return files;
         }

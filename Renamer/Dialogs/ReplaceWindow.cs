@@ -24,8 +24,8 @@ namespace Renamer.Dialogs
 {
     public partial class ReplaceWindow : Form
     {
-        Form1 MainWindow = null;
-        public ReplaceWindow(Form1 parent)
+        MainForm MainWindow = null;
+        public ReplaceWindow(MainForm parent)
         {
             MainWindow = parent;
             InitializeComponent();
