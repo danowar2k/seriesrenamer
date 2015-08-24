@@ -42,8 +42,8 @@ namespace Renamer.Classes
         public static string RemoveReleaseGroupTag(string filename)
         {
             //remove releasegroup tag, 
-            // normally 3 to 6 characters at the beginning of the filename seperated by a '-'
-            //if filename too short, it might be a part of the real name, so skip it
+            // normally 3 to 6 characters at the beginning of the configurationFilePath seperated by a '-'
+            //if configurationFilePath too short, it might be a part of the real name, so skip it
             if (filename.Length > 5)
             {
                 filename=Regex.Replace(filename, "^(([^\\p{Lu}]\\p{Ll}{1,3})|(\\p{Lu}{2,2}\\w))-", "");

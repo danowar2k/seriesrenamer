@@ -4,7 +4,7 @@ using System.Text;
 using Renamer.Classes;
 using System.IO;
 using System.Collections;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.Text.RegularExpressions;
 using Renamer.Dialogs;
 using System.Windows.Forms;
@@ -14,18 +14,18 @@ using System.ComponentModel;
 
 namespace Renamer
 {
-    class InfoEntryManager : IEnumerable
+    class CandidateManager : IEnumerable
     {
-        protected static InfoEntryManager instance;
+        protected static CandidateManager instance;
         private static object m_lock = new object();
         private BackgroundWorker worker = null;
         private DoWorkEventArgs dwea = null;
         private double ProgressAtCopyStart=0;
         private double ProgressAtCopyEnd = 0;
-        public static InfoEntryManager Instance {
+        public static CandidateManager Instance {
             get {
                 if (instance == null) {
-                    lock (m_lock) { if (instance == null) instance = new InfoEntryManager(); }
+                    lock (m_lock) { if (instance == null) instance = new CandidateManager(); }
                 }
                 return instance;
             }
@@ -35,13 +35,13 @@ namespace Renamer
         /// <summary>
         /// List of files, their target destinations etc
         /// </summary>
-        protected List<InfoEntry> episodes = new List<InfoEntry>();
+        protected List<Candidate> episodes = new List<Candidate>();
 
         public void Clear() {
             this.episodes.Clear();
         }
 
-        public InfoEntry this[int index] {
+        public Candidate this[int index] {
             get {
                 return this.episodes[index];
             }
@@ -53,10 +53,10 @@ namespace Renamer
             }
         }
 
-        public void Remove(InfoEntry ie) {
+        public void Remove(Candidate ie) {
             this.episodes.Remove(ie);
         }
-        public int IndexOf(InfoEntry ie)
+        public int IndexOf(Candidate ie)
         {
             for (int i = 0; i < episodes.Count; i++)
             {
@@ -69,7 +69,7 @@ namespace Renamer
         }
         public void RemoveMissingFileEntries() {
             //scan for files which got deleted so we can remove them
-            InfoEntry ie;
+            Candidate ie;
             for (int i = 0; i < this.episodes.Count; i++) {
                 ie = this.episodes[i];
                 if (!File.Exists(ie.FilePath.Path + Path.DirectorySeparatorChar + ie.Name)) {
@@ -95,9 +95,9 @@ namespace Renamer
         /// <param name="season">season to search for</param>
         /// <param name="episode">episode to search for</param>
         /// <returns>List of all matching InfoEntries, never null, but may be empty</returns>
-        public List<InfoEntry> GetMatchingVideos(string showname, int season, int episode) {
-            List<InfoEntry> lie = new List<InfoEntry>();
-            foreach (InfoEntry ie in this.episodes) {
+        public List<Candidate> GetMatchingVideos(string showname, int season, int episode) {
+            List<Candidate> lie = new List<Candidate>();
+            foreach (Candidate ie in this.episodes) {
                 if (ie.Showname==showname && ie.Season == season && ie.Episode == episode && ie.IsVideofile) {
                     lie.Add(ie);
                 }
@@ -111,9 +111,9 @@ namespace Renamer
         /// <param name="season">season to search for</param>
         /// <param name="episode">episode to search for</param>
         /// <returns>List of all matching InfoEntries, never null, but may be empty</returns>
-        public List<InfoEntry> GetVideos(string showname) {
-            List<InfoEntry> lie = new List<InfoEntry>();
-            foreach (InfoEntry ie in this.episodes) {
+        public List<Candidate> GetVideos(string showname) {
+            List<Candidate> lie = new List<Candidate>();
+            foreach (Candidate ie in this.episodes) {
                 if (ie.Showname == showname) {
                     lie.Add(ie);
                 }
@@ -127,9 +127,9 @@ namespace Renamer
         /// <param name="season">season to search for</param>
         /// <param name="episode">episode to search for</param>
         /// <returns>List of all matching InfoEntries, never null, but may be empty</returns>
-        public List<InfoEntry> GetMatchingSubtitles(int season, int episode) {
-            List<InfoEntry> lie = new List<InfoEntry>();
-            foreach (InfoEntry ie in this.episodes) {
+        public List<Candidate> GetMatchingSubtitles(int season, int episode) {
+            List<Candidate> lie = new List<Candidate>();
+            foreach (Candidate ie in this.episodes) {
                 if (ie.Season == season && ie.Episode == episode && ie.IsSubtitle) {
                     lie.Add(ie);
                 }
@@ -140,11 +140,11 @@ namespace Renamer
         /// <summary>
         /// Gets video file matching to subtitle
         /// </summary>
-        /// <param name="ieSubtitle">InfoEntry of a subtitle to find matching video file for</param>
+        /// <param name="ieSubtitle">Candidate of a subtitle to find matching video file for</param>
         /// <returns>Matching video file</returns>
-        public InfoEntry GetVideo(InfoEntry ieSubtitle) {
-            List<string> vidext = new List<string>(Helper.ReadProperties(Config.Extensions));
-            foreach (InfoEntry ie in this.episodes) {
+        public Candidate GetVideo(Candidate ieSubtitle) {
+            List<string> vidext = new List<string>(Helper.ReadProperties(ConfigKeyConstants.VIDEO_FILE_EXTENSIONS_KEY));
+            foreach (Candidate ie in this.episodes) {
                 if (Path.GetFileNameWithoutExtension(ieSubtitle.Filename) == Path.GetFileNameWithoutExtension(ie.Filename)) {
                     if (vidext.Contains(ie.Extension)) {
                         return ie;
@@ -159,11 +159,11 @@ namespace Renamer
         /// <summary>
         /// Gets subtitle file matching to video
         /// </summary>
-        /// <param name="ieVideo">InfoEntry of a video to find matching subtitle file for</param>
+        /// <param name="ieVideo">Candidate of a video to find matching subtitle file for</param>
         /// <returns>Matching subtitle file</returns>
-        public InfoEntry GetSubtitle(InfoEntry ieVideo) {
-            List<string> subext = new List<string>(Helper.ReadProperties(Config.SubtitleExtensions));
-            foreach (InfoEntry ie in this.episodes) {
+        public Candidate GetSubtitle(Candidate ieVideo) {
+            List<string> subext = new List<string>(Helper.ReadProperties(ConfigKeyConstants.SUBTITLE_FILE_EXTENSIONS_KEY));
+            foreach (Candidate ie in this.episodes) {
                 if (Path.GetFileNameWithoutExtension(ieVideo.Filename) == Path.GetFileNameWithoutExtension(ie.Filename)) {
                     if (subext.Contains(ie.Extension)) {
                         return ie;
@@ -179,10 +179,10 @@ namespace Renamer
         /// </summary>
         /// <param name="season">season to search for</param>
         /// <param name="episode">episode to search for</param>
-        /// <returns>InfoEntry of matching video file, null if not found or more than one found</returns>
-        public InfoEntry GetMatchingVideo(string showname, int season, int episode) {
-            List<InfoEntry> lie = GetMatchingVideos(showname, season, episode);
-            InfoEntry ie = (lie.Count == 1) ? lie[0] : null;
+        /// <returns>Candidate of matching video file, null if not found or more than one found</returns>
+        public Candidate GetMatchingVideo(string showname, int season, int episode) {
+            List<Candidate> lie = GetMatchingVideos(showname, season, episode);
+            Candidate ie = (lie.Count == 1) ? lie[0] : null;
             return ie;
         }
 
@@ -194,12 +194,12 @@ namespace Renamer
 
         #endregion
 
-        internal void Add(InfoEntry ie) {
+        internal void Add(Candidate ie) {
             this.episodes.Add(ie);
         }
 
-        public InfoEntry GetCollidingInfoEntry(InfoEntry ie){
-            foreach(InfoEntry ie2 in this){
+        public Candidate GetCollidingInfoEntry(Candidate ie){
+            foreach(Candidate ie2 in this){
                 if(IsSameTarget(ie,ie2)){
                     return ie2;
                 }
@@ -210,9 +210,9 @@ namespace Renamer
         /// figures out if 2 infoentry target locations collide
         /// </summary>
         /// <param name="ie1"></param>
-        /// <param name="ie2"></param>
+        /// <param name="someCandidate"></param>
         /// <returns></returns>
-        public bool IsSameTarget(InfoEntry ie1, InfoEntry ie2)
+        public bool IsSameTarget(Candidate ie1, Candidate ie2)
         {
             if (ie1 == ie2) return false;
             string name1, name2, dest1, dest2;
@@ -265,7 +265,7 @@ namespace Renamer
 
             long TotalBytes = 0;
             long Bytes = 0;
-            foreach (InfoEntry ie in episodes)
+            foreach (Candidate ie in episodes)
             {
                 if (ie.ProcessingRequested && ie.Destination != "" && ie.FilePath.Fullfilename.ToLower()[0] != ie.Destination.ToLower()[0])
                 {
@@ -282,7 +282,7 @@ namespace Renamer
                     return;
                 }
                 
-                InfoEntry ie = InfoEntryManager.Instance[i];
+                Candidate ie = CandidateManager.Instance[i];
                 if (ie.MarkedForDeletion&&ie.ProcessingRequested)
                 {
                     try
@@ -323,9 +323,9 @@ namespace Renamer
                 
                 worker.ReportProgress((int)ProgressAtCopyStart);
 
-                //if a InfoEntry is moved to a different destination directory that isn't visible in the current basedir, remove it
-                int subdirlevel=Filepath.GetSubdirectoryLevel(Helper.ReadProperty(Config.LastDirectory), ie.Destination);
-                bool remove =  subdirlevel > Helper.ReadInt(Config.MaxDepth)||subdirlevel==-1;
+                //if a Candidate is moved to a different destination directory that isn't visible in the current basedir, remove it
+                int subdirlevel=Filepath.GetSubdirectoryLevel(Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY), ie.Destination);
+                bool remove =  subdirlevel > Helper.ReadInt(ConfigKeyConstants.MAX_SEARCH_DEPTH_KEY)||subdirlevel==-1;
                 //this call will also report progress more detailed by calling ReportSingleFileProgress()
                 ie.Rename(worker, e);
                 if (remove)
@@ -340,9 +340,9 @@ namespace Renamer
                     Bytes += new FileInfo(ie.FilePath.Fullfilename).Length;
                 }
             }
-            if (Helper.ReadBool(Config.DeleteEmptyFolders)) {
+            if (Helper.ReadBool(ConfigKeyConstants.DELETE_EMPTIED_FOLDERS_KEY)) {
                 //Delete all empty folders code
-                Helper.DeleteAllEmptyFolders(Helper.ReadProperty(Config.LastDirectory), new List<string>(Helper.ReadProperties(Config.IgnoreFiles)),worker,e);
+                Helper.DeleteAllEmptyFolders(Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY), new List<string>(Helper.ReadProperties(ConfigKeyConstants.EMPTY_FOLDER_CHECK_IGNORED_FILETYPES_KEY)),worker,e);
             }
             if (!e.Cancel)
             {
@@ -368,7 +368,7 @@ namespace Renamer
         public void RenameShow(string from, string to)
         {
             from = from.ToLower();
-            foreach (InfoEntry ie in episodes)
+            foreach (Candidate ie in episodes)
             {
                 if (ie.Showname.ToLower() == from)
                 {
@@ -379,7 +379,7 @@ namespace Renamer
         public bool ContainsShow(string showname)
         {
             showname = showname.ToLower();
-            foreach (InfoEntry ie in episodes)
+            foreach (Candidate ie in episodes)
             {
                 if (ie.Showname.ToLower() == showname)
                 {
@@ -394,8 +394,8 @@ namespace Renamer
         /// <param name="Basepath">basepath, as always</param>
         /// <param name="Showname">user entered showname</param>
         public void SelectSimilarFilesForProcessing(string Basepath, string Showname) {
-            List<InfoEntry> matches = FindSimilarByName(Showname);
-            foreach (InfoEntry ie in this.episodes) {
+            List<Candidate> matches = FindSimilarByName(Showname);
+            foreach (Candidate ie in this.episodes) {
                 if (matches.Contains(ie)) {
                     ie.ProcessingRequested = true;
                     ie.Movie = false;
@@ -408,13 +408,13 @@ namespace Renamer
         }
 
         /// <summary>
-        /// Sets new title to some files and takes care of storing it properly (last [TitleHistorySize] Titles are stored)
+        /// Sets new title to some files and takes care of storing it properly (last [TITLE_HISTORY_SIZE_KEY] Titles are stored)
         /// </summary>
         /// <param name="files">files to which this title should be set to</param>
         /// <param name="title">name to be set</param>
-        public void SetNewTitle(List<InfoEntry> files, string title) {
-            string[] LastTitlesOld = Helper.ReadProperties(Config.LastTitles);
-            foreach (InfoEntry ie in files) {
+        public void SetNewTitle(List<Candidate> files, string title) {
+            string[] LastTitlesOld = Helper.ReadProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY);
+            foreach (Candidate ie in files) {
                 if (ie.Showname != title) {
                     ie.Showname = title;
                 }
@@ -437,15 +437,15 @@ namespace Renamer
                 foreach (string s in LastTitlesOld) {
                     LastTitlesNew.Add(s);
                 }
-                int size = Helper.ReadInt(Config.TitleHistorySize);
-                Helper.WriteProperties(Config.LastTitles, LastTitlesNew.GetRange(0, Math.Min(LastTitlesNew.Count, size)).ToArray());
+                int size = Helper.ReadInt(ConfigKeyConstants.TITLE_HISTORY_SIZE_KEY);
+                Helper.WriteProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY, LastTitlesNew.GetRange(0, Math.Min(LastTitlesNew.Count, size)).ToArray());
             }
             //if the title is in the list already, bring it to the front
             else {
                 List<string> items = new List<string>(LastTitlesOld);
                 items.RemoveAt(Index);
                 items.Insert(0, title);
-                Helper.WriteProperties(Config.LastTitles, items.ToArray());
+                Helper.WriteProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY, items.ToArray());
             }
         }
         public void SetPath(string path) {
@@ -486,27 +486,27 @@ namespace Renamer
                 path = fixedpath;
             }
             //Same path, ignore
-            if (Helper.ReadProperty(Config.LastDirectory).ToLower() == path.ToLower()) {
+            if (Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY).ToLower() == path.ToLower()) {
                 return;
             }
             else {
-                Helper.WriteProperty(Config.LastDirectory, path);
+                Helper.WriteProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY, path);
                 Environment.CurrentDirectory = path;
             }
         }
 
         /// <summary>
-        /// Finds similar files by looking at the filename and comparing it to a showname
+        /// Finds similar files by looking at the configurationFilePath and comparing it to a showname
         /// </summary>
         /// <param name="Basepath">basepath of the show</param>
         /// <param name="Showname">name of the show to filter</param>
         /// <param name="source">source files</param>
         /// <returns>a list of matches</returns>
-        public List<InfoEntry> FindSimilarByName(string Showname) {
-            List<InfoEntry> matches = new List<InfoEntry>();
+        public List<Candidate> FindSimilarByName(string Showname) {
+            List<Candidate> matches = new List<Candidate>();
             Showname = Showname.ToLower();
-            //whatever, just check path and filename if it contains the showname
-            foreach (InfoEntry ie in this.episodes) {
+            //whatever, just check path and configurationFilePath if it contains the showname
+            foreach (Candidate ie in this.episodes) {
                 string[] folders = Helper.splitFilePath(ie.FilePath.Path);
                 string processed = ie.Filename.ToLower();
 
@@ -521,8 +521,8 @@ namespace Renamer
                     }
                 }
 
-                //now check if whole showname is in the filename
-                string CleanupRegex = Helper.ReadProperty(Config.CleanupRegex);
+                //now check if whole showname is in the configurationFilePath
+                string CleanupRegex = Helper.ReadProperty(ConfigKeyConstants.REGEX_SHOWNAME_CLEANUP_KEY);
                 processed = Regex.Replace(processed, CleanupRegex, " ");
                 if (processed.Contains(Showname)) {
                     matches.Add(ie);
@@ -545,7 +545,7 @@ namespace Renamer
 
         #region Unsused for now!
         public static int GetNumberOfVideoFilesInFolder(string path) {
-            List<string> vidext = new List<string>(Helper.ReadProperties(Config.Extensions));
+            List<string> vidext = new List<string>(Helper.ReadProperties(ConfigKeyConstants.VIDEO_FILE_EXTENSIONS_KEY));
             int count = 0;
             foreach (string file in Directory.GetFiles(path)) {
                 if (vidext.Contains(Path.GetFileNameWithoutExtension(file))) {
@@ -558,7 +558,7 @@ namespace Renamer
 
         public void ClearRelation(string showname)
         {
-            foreach (InfoEntry ie in episodes)
+            foreach (Candidate ie in episodes)
             {
                 if (ie.Showname == showname)
                 {
@@ -568,7 +568,7 @@ namespace Renamer
         }
         public void ClearRelations()
         {
-            foreach (InfoEntry ie in episodes)
+            foreach (Candidate ie in episodes)
             {
                 ie.Name = "";
             }

@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Renamer.Classes.Provider;
 using Renamer.Logging;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.Text.RegularExpressions;
 
 namespace Renamer.Dialogs
@@ -41,9 +41,9 @@ namespace Renamer.Dialogs
                 ComboBox cbProviders = new ComboBox();
                 cbProviders.DropDownStyle = ComboBoxStyle.DropDownList;
                 cbProviders.Name = "ComboBox Providers " + i;
-                cbProviders.Items.AddRange(RelationProvider.ProviderNames);
+                cbProviders.Items.AddRange(TitleProvider.getProviderNames().ToArray());
                 cbProviders.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-                RelationProvider provider = RelationProvider.GetCurrentProvider();
+                TitleProvider provider = TitleProvider.GetCurrentProvider();
                 cbProviders.SelectedItem = provider.Name;
                 tableLayoutPanel1.Controls.Add(cbProviders, 2, i + 1);
                 Button btn = new Button();
@@ -97,7 +97,7 @@ namespace Renamer.Dialogs
 
         public void FindBestSearchResult(ComboBox cbResults, string SearchString)
         {
-            RelationProvider provider = RelationProvider.GetCurrentProvider();
+            TitleProvider provider = TitleProvider.GetCurrentProvider();
             cbResults.SelectedIndex = 0;
             //Restore previously selected result
             if (provider.SelectedResults.ContainsKey(SearchString) && cbResults.Items.Contains(provider.SelectedResults[SearchString]))
@@ -106,7 +106,7 @@ namespace Renamer.Dialogs
             }
             else
             {
-                List<string> languages = new List<string>(Helper.ReadProperties(Config.Languages));
+                List<string> languages = new List<string>(Helper.ReadProperties(ConfigKeyConstants.PREFERRED_RESULT_LANGUAGES_KEY));
                 if (languages.Count > 0)
                 {
                     //get a list of matching results with correct language, then use shortest one
@@ -144,10 +144,10 @@ namespace Renamer.Dialogs
             TextBox SearchBox=(TextBox)tableLayoutPanel1.Controls["TextBox "+row];
             ComboBox ProviderBox=(ComboBox)tableLayoutPanel1.Controls["ComboBox Providers "+row];
             Label ShownameLabel=(Label)tableLayoutPanel1.Controls["Label "+row];
-            DataGenerator.ParsedSearch Search=DataGenerator.Search(RelationProvider.GetProviderByName(ProviderBox.SelectedItem.ToString()), SearchBox.Text, ShownameLabel.Text);
+            DataGenerator.ParsedSearch Search=DataGenerator.Search(TitleProvider.GetProviderByName(ProviderBox.SelectedItem.ToString()), SearchBox.Text, ShownameLabel.Text);
             ComboBox cbResults = (ComboBox)tableLayoutPanel1.Controls["ComboBox " + row];
             cbResults.Items.Clear();
-            RelationProvider provider = RelationProvider.GetCurrentProvider();
+            TitleProvider provider = TitleProvider.GetCurrentProvider();
             
             if (Search.Results != null && Search.Results.Count!=0)
             {
@@ -167,7 +167,7 @@ namespace Renamer.Dialogs
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            RelationProvider provider = RelationProvider.GetCurrentProvider();
+            TitleProvider provider = TitleProvider.GetCurrentProvider();
             for (int i = 0; i < Results.Count; i++)
             {
                 ComboBox cbResults = (ComboBox)tableLayoutPanel1.Controls["ComboBox " + i];

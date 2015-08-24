@@ -46,16 +46,16 @@ namespace Renamer
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.scContainer = new System.Windows.Forms.SplitContainer();
             this.lblFileListingProgress = new System.Windows.Forms.Label();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.lstEntries = new BrightIdeasSoftware.FastObjectListView();
-            this.ColumnSource = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnFilepath = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnShowname = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnSeason = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnEpisode = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnEpisodeName = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnDestination = new BrightIdeasSoftware.OLVColumn();
-            this.ColumnNewFilename = new BrightIdeasSoftware.OLVColumn();
+            this.btnCancelBackgroundTask = new System.Windows.Forms.Button();
+            this.lstCandidateFiles = new BrightIdeasSoftware.FastObjectListView();
+            this.ColumnSource = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnFilepath = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnShowname = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnSeason = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnEpisode = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnEpisodeName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnDestination = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+            this.ColumnNewFilename = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
             this.contextFiles = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editSubtitleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,39 +106,40 @@ namespace Renamer
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regexTesterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutDialogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.btnOpen = new System.Windows.Forms.Button();
-            this.btnRename = new System.Windows.Forms.Button();
-            this.txtTarget = new System.Windows.Forms.TextBox();
-            this.cbSubs = new System.Windows.Forms.ComboBox();
+            this.taskProgressBar = new System.Windows.Forms.ProgressBar();
+            this.btnExploreCurrentFolder = new System.Windows.Forms.Button();
+            this.btnRenameSelectedCandidates = new System.Windows.Forms.Button();
+            this.txtTargetFilenamePattern = new System.Windows.Forms.TextBox();
+            this.cbSubtitleProviders = new System.Windows.Forms.ComboBox();
             this.lblSubFrom = new System.Windows.Forms.Label();
             this.lblTargetFilename = new System.Windows.Forms.Label();
-            this.btnSubs = new System.Windows.Forms.Button();
-            this.btnAbout = new System.Windows.Forms.Button();
+            this.btnSearchForSubtitles = new System.Windows.Forms.Button();
+            this.btnAboutApplication = new System.Windows.Forms.Button();
             this.cbProviders = new System.Windows.Forms.ComboBox();
             this.lblTitlesFrom = new System.Windows.Forms.Label();
-            this.btnTitles = new System.Windows.Forms.Button();
-            this.btnConfig = new System.Windows.Forms.Button();
-            this.btnPath = new System.Windows.Forms.Button();
-            this.txtPath = new System.Windows.Forms.TextBox();
-            this.lblFolder = new System.Windows.Forms.Label();
+            this.btnSearchForTitles = new System.Windows.Forms.Button();
+            this.btnOpenConfiguration = new System.Windows.Forms.Button();
+            this.btnChangeCurrentFolder = new System.Windows.Forms.Button();
+            this.txtCurrentFolderPath = new System.Windows.Forms.TextBox();
+            this.lblCurrentFolderPath = new System.Windows.Forms.Label();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.rtbLog = new System.Windows.Forms.RichTextBox();
-            this.fbdPath = new System.Windows.Forms.FolderBrowserDialog();
+            this.fbdChangeCurrentFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundTaskWorker = new System.ComponentModel.BackgroundWorker();
+            ((System.ComponentModel.ISupportInitialize)(this.scContainer)).BeginInit();
             this.scContainer.Panel1.SuspendLayout();
             this.scContainer.Panel2.SuspendLayout();
             this.scContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.lstEntries)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lstCandidateFiles)).BeginInit();
             this.contextFiles.SuspendLayout();
             this.SuspendLayout();
             // 
             // scContainer
             // 
-            this.scContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.scContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.scContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.scContainer.Location = new System.Drawing.Point(0, 0);
             this.scContainer.Name = "scContainer";
@@ -147,24 +148,24 @@ namespace Renamer
             // scContainer.Panel1
             // 
             this.scContainer.Panel1.Controls.Add(this.lblFileListingProgress);
-            this.scContainer.Panel1.Controls.Add(this.btnCancel);
-            this.scContainer.Panel1.Controls.Add(this.lstEntries);
-            this.scContainer.Panel1.Controls.Add(this.progressBar1);
-            this.scContainer.Panel1.Controls.Add(this.btnOpen);
-            this.scContainer.Panel1.Controls.Add(this.btnRename);
-            this.scContainer.Panel1.Controls.Add(this.txtTarget);
-            this.scContainer.Panel1.Controls.Add(this.cbSubs);
+            this.scContainer.Panel1.Controls.Add(this.btnCancelBackgroundTask);
+            this.scContainer.Panel1.Controls.Add(this.lstCandidateFiles);
+            this.scContainer.Panel1.Controls.Add(this.taskProgressBar);
+            this.scContainer.Panel1.Controls.Add(this.btnExploreCurrentFolder);
+            this.scContainer.Panel1.Controls.Add(this.btnRenameSelectedCandidates);
+            this.scContainer.Panel1.Controls.Add(this.txtTargetFilenamePattern);
+            this.scContainer.Panel1.Controls.Add(this.cbSubtitleProviders);
             this.scContainer.Panel1.Controls.Add(this.lblSubFrom);
             this.scContainer.Panel1.Controls.Add(this.lblTargetFilename);
-            this.scContainer.Panel1.Controls.Add(this.btnSubs);
-            this.scContainer.Panel1.Controls.Add(this.btnAbout);
+            this.scContainer.Panel1.Controls.Add(this.btnSearchForSubtitles);
+            this.scContainer.Panel1.Controls.Add(this.btnAboutApplication);
             this.scContainer.Panel1.Controls.Add(this.cbProviders);
             this.scContainer.Panel1.Controls.Add(this.lblTitlesFrom);
-            this.scContainer.Panel1.Controls.Add(this.btnTitles);
-            this.scContainer.Panel1.Controls.Add(this.btnConfig);
-            this.scContainer.Panel1.Controls.Add(this.btnPath);
-            this.scContainer.Panel1.Controls.Add(this.txtPath);
-            this.scContainer.Panel1.Controls.Add(this.lblFolder);
+            this.scContainer.Panel1.Controls.Add(this.btnSearchForTitles);
+            this.scContainer.Panel1.Controls.Add(this.btnOpenConfiguration);
+            this.scContainer.Panel1.Controls.Add(this.btnChangeCurrentFolder);
+            this.scContainer.Panel1.Controls.Add(this.txtCurrentFolderPath);
+            this.scContainer.Panel1.Controls.Add(this.lblCurrentFolderPath);
             this.scContainer.Panel1MinSize = 300;
             // 
             // scContainer.Panel2
@@ -187,37 +188,37 @@ namespace Renamer
             this.lblFileListingProgress.TabIndex = 19;
             this.lblFileListingProgress.Visible = false;
             // 
-            // btnCancel
+            // btnCancelBackgroundTask
             // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Enabled = false;
-            this.btnCancel.Location = new System.Drawing.Point(447, 4);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(85, 23);
-            this.btnCancel.TabIndex = 18;
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Visible = false;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancelBackgroundTask.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancelBackgroundTask.Enabled = false;
+            this.btnCancelBackgroundTask.Location = new System.Drawing.Point(447, 4);
+            this.btnCancelBackgroundTask.Name = "btnCancelBackgroundTask";
+            this.btnCancelBackgroundTask.Size = new System.Drawing.Size(85, 23);
+            this.btnCancelBackgroundTask.TabIndex = 18;
+            this.btnCancelBackgroundTask.Text = "Cancel";
+            this.btnCancelBackgroundTask.UseVisualStyleBackColor = true;
+            this.btnCancelBackgroundTask.Visible = false;
+            this.btnCancelBackgroundTask.Click += new System.EventHandler(this.btnCancelBackgroundTask_Click);
             // 
-            // lstEntries
+            // lstCandidateFiles
             // 
-            this.lstEntries.AllColumns.Add(this.ColumnSource);
-            this.lstEntries.AllColumns.Add(this.ColumnFilepath);
-            this.lstEntries.AllColumns.Add(this.ColumnShowname);
-            this.lstEntries.AllColumns.Add(this.ColumnSeason);
-            this.lstEntries.AllColumns.Add(this.ColumnEpisode);
-            this.lstEntries.AllColumns.Add(this.ColumnEpisodeName);
-            this.lstEntries.AllColumns.Add(this.ColumnDestination);
-            this.lstEntries.AllColumns.Add(this.ColumnNewFilename);
-            this.lstEntries.AllowColumnReorder = true;
-            this.lstEntries.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstEntries.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
-            this.lstEntries.CheckBoxes = true;
-            this.lstEntries.CheckedAspectName = "";
-            this.lstEntries.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnSource);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnFilepath);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnShowname);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnSeason);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnEpisode);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnEpisodeName);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnDestination);
+            this.lstCandidateFiles.AllColumns.Add(this.ColumnNewFilename);
+            this.lstCandidateFiles.AllowColumnReorder = true;
+            this.lstCandidateFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstCandidateFiles.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
+            this.lstCandidateFiles.CheckBoxes = true;
+            this.lstCandidateFiles.CheckedAspectName = "";
+            this.lstCandidateFiles.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.ColumnSource,
             this.ColumnFilepath,
             this.ColumnShowname,
@@ -226,27 +227,27 @@ namespace Renamer
             this.ColumnEpisodeName,
             this.ColumnDestination,
             this.ColumnNewFilename});
-            this.lstEntries.ContextMenuStrip = this.contextFiles;
-            this.lstEntries.EmptyListMsg = "No matching files in this folder";
-            this.lstEntries.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstEntries.FullRowSelect = true;
-            this.lstEntries.Location = new System.Drawing.Point(12, 33);
-            this.lstEntries.Name = "lstEntries";
-            this.lstEntries.ShowGroups = false;
-            this.lstEntries.ShowImagesOnSubItems = true;
-            this.lstEntries.ShowItemToolTips = true;
-            this.lstEntries.Size = new System.Drawing.Size(996, 427);
-            this.lstEntries.TabIndex = 17;
-            this.lstEntries.UseCompatibleStateImageBehavior = false;
-            this.lstEntries.View = System.Windows.Forms.View.Details;
-            this.lstEntries.VirtualMode = true;
-            this.lstEntries.CellEditFinishing += new BrightIdeasSoftware.CellEditEventHandler(this.lstEntries_CellEditFinishing);
-            this.lstEntries.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstEntries_KeyDown);
-            this.lstEntries.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.lstEntries_CellEditStarting);
-            this.lstEntries.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstEntries_DragDrop);
-            this.lstEntries.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstEntries_MouseDoubleClick);
-            this.lstEntries.KeyUp += new System.Windows.Forms.KeyEventHandler(this.lstEntries_KeyUp);
-            this.lstEntries.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstEntries_DragEnter);
+            this.lstCandidateFiles.ContextMenuStrip = this.contextFiles;
+            this.lstCandidateFiles.EmptyListMsg = "No matching files in this folder";
+            this.lstCandidateFiles.EmptyListMsgFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstCandidateFiles.FullRowSelect = true;
+            this.lstCandidateFiles.Location = new System.Drawing.Point(12, 33);
+            this.lstCandidateFiles.Name = "lstCandidateFiles";
+            this.lstCandidateFiles.ShowGroups = false;
+            this.lstCandidateFiles.ShowImagesOnSubItems = true;
+            this.lstCandidateFiles.ShowItemToolTips = true;
+            this.lstCandidateFiles.Size = new System.Drawing.Size(996, 427);
+            this.lstCandidateFiles.TabIndex = 17;
+            this.lstCandidateFiles.UseCompatibleStateImageBehavior = false;
+            this.lstCandidateFiles.View = System.Windows.Forms.View.Details;
+            this.lstCandidateFiles.VirtualMode = true;
+            this.lstCandidateFiles.CellEditFinishing += new BrightIdeasSoftware.CellEditEventHandler(this.lstEntries_CellEditFinishing);
+            this.lstCandidateFiles.CellEditStarting += new BrightIdeasSoftware.CellEditEventHandler(this.lstEntries_CellEditStarting);
+            this.lstCandidateFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstEntries_DragDrop);
+            this.lstCandidateFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstEntries_DragEnter);
+            this.lstCandidateFiles.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstEntries_KeyDown);
+            this.lstCandidateFiles.KeyUp += new System.Windows.Forms.KeyEventHandler(this.lstEntries_KeyUp);
+            this.lstCandidateFiles.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstEntries_MouseDoubleClick);
             // 
             // ColumnSource
             // 
@@ -318,48 +319,48 @@ namespace Renamer
             this.aboutDialogToolStripMenuItem});
             this.contextFiles.Name = "contextFiles";
             this.contextFiles.ShowImageMargin = false;
-            this.contextFiles.Size = new System.Drawing.Size(239, 418);
+            this.contextFiles.Size = new System.Drawing.Size(186, 440);
             this.contextFiles.Opening += new System.ComponentModel.CancelEventHandler(this.contextFiles_Opening);
             // 
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.viewToolStripMenuItem.Text = "Open";
             this.viewToolStripMenuItem.Click += new System.EventHandler(this.viewToolStripMenuItem_Click);
             // 
             // editSubtitleToolStripMenuItem
             // 
             this.editSubtitleToolStripMenuItem.Name = "editSubtitleToolStripMenuItem";
-            this.editSubtitleToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.editSubtitleToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.editSubtitleToolStripMenuItem.Text = "Edit Subtitle";
             this.editSubtitleToolStripMenuItem.Click += new System.EventHandler(this.editSubtitleToolStripMenuItem_Click);
             // 
             // markAsMovieToolStripMenuItem
             // 
             this.markAsMovieToolStripMenuItem.Name = "markAsMovieToolStripMenuItem";
-            this.markAsMovieToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.markAsMovieToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.markAsMovieToolStripMenuItem.Text = "Mark as Movie";
             this.markAsMovieToolStripMenuItem.Click += new System.EventHandler(this.markAsMovieToolStripMenuItem_Click);
             // 
             // markAsTVSeriesToolStripMenuItem
             // 
             this.markAsTVSeriesToolStripMenuItem.Name = "markAsTVSeriesToolStripMenuItem";
-            this.markAsTVSeriesToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.markAsTVSeriesToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.markAsTVSeriesToolStripMenuItem.Text = "Mark as TV series";
             this.markAsTVSeriesToolStripMenuItem.Click += new System.EventHandler(this.markAsTVSeriesToolStripMenuItem_Click);
             // 
             // lookUpOnIMDBToolStripMenuItem
             // 
             this.lookUpOnIMDBToolStripMenuItem.Name = "lookUpOnIMDBToolStripMenuItem";
-            this.lookUpOnIMDBToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.lookUpOnIMDBToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.lookUpOnIMDBToolStripMenuItem.Text = "Look up on IMDB";
             this.lookUpOnIMDBToolStripMenuItem.Click += new System.EventHandler(this.lookUpOnIMDBToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(235, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(182, 6);
             // 
             // renamingToolStripMenuItem
             // 
@@ -369,7 +370,7 @@ namespace Renamer
             this.caseToolStripMenuItem,
             this.replaceInPathToolStripMenuItem});
             this.renamingToolStripMenuItem.Name = "renamingToolStripMenuItem";
-            this.renamingToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.renamingToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.renamingToolStripMenuItem.Text = "Renaming";
             // 
             // createDirectoryStructureToolStripMenuItem
@@ -481,13 +482,13 @@ namespace Renamer
             this.selectByKeywordToolStripMenuItem,
             this.selectSimilarToolStripMenuItem});
             this.selectToolStripMenuItem.Name = "selectToolStripMenuItem";
-            this.selectToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.selectToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.selectToolStripMenuItem.Text = "Select";
             // 
             // invertSelectionToolStripMenuItem
             // 
             this.invertSelectionToolStripMenuItem.Name = "invertSelectionToolStripMenuItem";
-            this.invertSelectionToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.invertSelectionToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.invertSelectionToolStripMenuItem.Text = "Invert selection";
             this.invertSelectionToolStripMenuItem.Click += new System.EventHandler(this.invertSelectionToolStripMenuItem_Click);
             // 
@@ -495,7 +496,7 @@ namespace Renamer
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
             this.selectAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.selectAllToolStripMenuItem.Text = "Select all";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
@@ -503,14 +504,14 @@ namespace Renamer
             // 
             this.selectByKeywordToolStripMenuItem.Name = "selectByKeywordToolStripMenuItem";
             this.selectByKeywordToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
-            this.selectByKeywordToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.selectByKeywordToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.selectByKeywordToolStripMenuItem.Text = "Select by keyword";
             this.selectByKeywordToolStripMenuItem.Click += new System.EventHandler(this.selectByKeywordToolStripMenuItem_Click);
             // 
             // selectSimilarToolStripMenuItem
             // 
             this.selectSimilarToolStripMenuItem.Name = "selectSimilarToolStripMenuItem";
-            this.selectSimilarToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.selectSimilarToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.selectSimilarToolStripMenuItem.Text = "Select similar by name";
             this.selectSimilarToolStripMenuItem.Click += new System.EventHandler(this.byNameToolStripMenuItem_Click);
             // 
@@ -522,7 +523,7 @@ namespace Renamer
             this.invertCheckToolStripMenuItem,
             this.toggleSelectedToolStripMenuItem});
             this.checkToolStripMenuItem.Name = "checkToolStripMenuItem";
-            this.checkToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.checkToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.checkToolStripMenuItem.Text = "Check";
             // 
             // checkAllToolStripMenuItem
@@ -557,33 +558,33 @@ namespace Renamer
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(235, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(182, 6);
             // 
             // setShownameToolStripMenuItem
             // 
             this.setShownameToolStripMenuItem.Name = "setShownameToolStripMenuItem";
-            this.setShownameToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.setShownameToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.setShownameToolStripMenuItem.Text = "Set Showname";
             this.setShownameToolStripMenuItem.Click += new System.EventHandler(this.setShownameToolStripMenuItem_Click);
             // 
             // setSeasonToolStripMenuItem
             // 
             this.setSeasonToolStripMenuItem.Name = "setSeasonToolStripMenuItem";
-            this.setSeasonToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.setSeasonToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.setSeasonToolStripMenuItem.Text = "Set Season";
             this.setSeasonToolStripMenuItem.Click += new System.EventHandler(this.setSeasonToolStripMenuItem_Click);
             // 
             // setEpisodesFromtoToolStripMenuItem
             // 
             this.setEpisodesFromtoToolStripMenuItem.Name = "setEpisodesFromtoToolStripMenuItem";
-            this.setEpisodesFromtoToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.setEpisodesFromtoToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.setEpisodesFromtoToolStripMenuItem.Text = "Set Episodes from...to...";
             this.setEpisodesFromtoToolStripMenuItem.Click += new System.EventHandler(this.setEpisodesFromtoToolStripMenuItem_Click);
             // 
             // setDestinationToolStripMenuItem
             // 
             this.setDestinationToolStripMenuItem.Name = "setDestinationToolStripMenuItem";
-            this.setDestinationToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.setDestinationToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.setDestinationToolStripMenuItem.Text = "Set Destination";
             this.setDestinationToolStripMenuItem.Click += new System.EventHandler(this.setDestinationToolStripMenuItem_Click);
             // 
@@ -591,7 +592,7 @@ namespace Renamer
             // 
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
             this.renameToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F2;
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.renameToolStripMenuItem.Text = "Set Filename";
             this.renameToolStripMenuItem.Visible = false;
             this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
@@ -599,7 +600,7 @@ namespace Renamer
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(235, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(182, 6);
             // 
             // copyToolStripMenuItem
             // 
@@ -611,7 +612,7 @@ namespace Renamer
             this.destinationNewFileNameToolStripMenuItem,
             this.operationToolStripMenuItem});
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.copyToolStripMenuItem.Text = "Copy...";
             // 
             // originalNameToolStripMenuItem
@@ -661,7 +662,7 @@ namespace Renamer
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
             this.refreshToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
@@ -669,23 +670,23 @@ namespace Renamer
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
             this.removeToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.removeToolStripMenuItem.Text = "Remove from list";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
-            //  
+            // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // regexTesterToolStripMenuItem
             // 
             this.regexTesterToolStripMenuItem.Name = "regexTesterToolStripMenuItem";
-            this.regexTesterToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-                        | System.Windows.Forms.Keys.R)));
-            this.regexTesterToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.regexTesterToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.R)));
+            this.regexTesterToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.regexTesterToolStripMenuItem.Text = "RegexTester";
             this.regexTesterToolStripMenuItem.Visible = false;
             this.regexTesterToolStripMenuItem.Click += new System.EventHandler(this.regexTesterToolStripMenuItem_Click);
@@ -694,68 +695,68 @@ namespace Renamer
             // 
             this.aboutDialogToolStripMenuItem.Name = "aboutDialogToolStripMenuItem";
             this.aboutDialogToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutDialogToolStripMenuItem.Size = new System.Drawing.Size(238, 22);
+            this.aboutDialogToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.aboutDialogToolStripMenuItem.Text = "AboutDialog";
             this.aboutDialogToolStripMenuItem.Visible = false;
             this.aboutDialogToolStripMenuItem.Click += new System.EventHandler(this.aboutDialogToolStripMenuItem_Click);
             // 
-            // progressBar1
+            // taskProgressBar
             // 
-            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.BackColor = System.Drawing.SystemColors.Control;
-            this.progressBar1.Location = new System.Drawing.Point(12, 4);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(429, 23);
-            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.progressBar1.TabIndex = 16;
-            this.progressBar1.Visible = false;
+            this.taskProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.taskProgressBar.BackColor = System.Drawing.SystemColors.Control;
+            this.taskProgressBar.Location = new System.Drawing.Point(12, 4);
+            this.taskProgressBar.Name = "taskProgressBar";
+            this.taskProgressBar.Size = new System.Drawing.Size(429, 23);
+            this.taskProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.taskProgressBar.TabIndex = 16;
+            this.taskProgressBar.Visible = false;
             // 
-            // btnOpen
+            // btnExploreCurrentFolder
             // 
-            this.btnOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOpen.Image = global::Renamer.Properties.Resources.Browse;
-            this.btnOpen.Location = new System.Drawing.Point(413, 4);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(28, 23);
-            this.btnOpen.TabIndex = 15;
-            this.btnOpen.UseVisualStyleBackColor = true;
-            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
+            this.btnExploreCurrentFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExploreCurrentFolder.Image = global::Renamer.Properties.Resources.Browse;
+            this.btnExploreCurrentFolder.Location = new System.Drawing.Point(413, 4);
+            this.btnExploreCurrentFolder.Name = "btnExploreCurrentFolder";
+            this.btnExploreCurrentFolder.Size = new System.Drawing.Size(28, 23);
+            this.btnExploreCurrentFolder.TabIndex = 15;
+            this.btnExploreCurrentFolder.UseVisualStyleBackColor = true;
+            this.btnExploreCurrentFolder.Click += new System.EventHandler(this.btnExploreCurrentFolder_Click);
             // 
-            // btnRename
+            // btnRenameSelectedCandidates
             // 
-            this.btnRename.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRename.AutoSize = true;
-            this.btnRename.Location = new System.Drawing.Point(741, 4);
-            this.btnRename.Name = "btnRename";
-            this.btnRename.Size = new System.Drawing.Size(85, 23);
-            this.btnRename.TabIndex = 11;
-            this.btnRename.Text = "Rename !";
-            this.btnRename.UseVisualStyleBackColor = true;
-            this.btnRename.Click += new System.EventHandler(this.btnRename_Click);
+            this.btnRenameSelectedCandidates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRenameSelectedCandidates.AutoSize = true;
+            this.btnRenameSelectedCandidates.Location = new System.Drawing.Point(741, 4);
+            this.btnRenameSelectedCandidates.Name = "btnRenameSelectedCandidates";
+            this.btnRenameSelectedCandidates.Size = new System.Drawing.Size(85, 23);
+            this.btnRenameSelectedCandidates.TabIndex = 11;
+            this.btnRenameSelectedCandidates.Text = "Rename !";
+            this.btnRenameSelectedCandidates.UseVisualStyleBackColor = true;
+            this.btnRenameSelectedCandidates.Click += new System.EventHandler(this.btnRenameSelectedCandidates_Click);
             // 
-            // txtTarget
+            // txtTargetFilenamePattern
             // 
-            this.txtTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTarget.Location = new System.Drawing.Point(629, 6);
-            this.txtTarget.MinimumSize = new System.Drawing.Size(100, 20);
-            this.txtTarget.Name = "txtTarget";
-            this.txtTarget.Size = new System.Drawing.Size(106, 20);
-            this.txtTarget.TabIndex = 9;
-            this.txtTarget.Text = "S%sE%E - %N";
-            this.txtTarget.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTarget_KeyDown);
-            this.txtTarget.Leave += new System.EventHandler(this.txtTarget_Leave);
+            this.txtTargetFilenamePattern.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTargetFilenamePattern.Location = new System.Drawing.Point(629, 6);
+            this.txtTargetFilenamePattern.MinimumSize = new System.Drawing.Size(100, 20);
+            this.txtTargetFilenamePattern.Name = "txtTarget";
+            this.txtTargetFilenamePattern.Size = new System.Drawing.Size(106, 20);
+            this.txtTargetFilenamePattern.TabIndex = 9;
+            this.txtTargetFilenamePattern.Text = "S%sE%E - %N";
+            this.txtTargetFilenamePattern.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTarget_KeyDown);
+            this.txtTargetFilenamePattern.Leave += new System.EventHandler(this.txtTarget_Leave);
             // 
-            // cbSubs
+            // cbSubtitleProviders
             // 
-            this.cbSubs.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbSubs.FormattingEnabled = true;
-            this.cbSubs.Location = new System.Drawing.Point(447, 244);
-            this.cbSubs.Name = "cbSubs";
-            this.cbSubs.Size = new System.Drawing.Size(196, 21);
-            this.cbSubs.TabIndex = 13;
-            this.cbSubs.Visible = false;
-            this.cbSubs.SelectedIndexChanged += new System.EventHandler(this.cbSubs_SelectedIndexChanged);
+            this.cbSubtitleProviders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbSubtitleProviders.FormattingEnabled = true;
+            this.cbSubtitleProviders.Location = new System.Drawing.Point(447, 244);
+            this.cbSubtitleProviders.Name = "cbSubtitleProviders";
+            this.cbSubtitleProviders.Size = new System.Drawing.Size(196, 21);
+            this.cbSubtitleProviders.TabIndex = 13;
+            this.cbSubtitleProviders.Visible = false;
+            this.cbSubtitleProviders.SelectedIndexChanged += new System.EventHandler(this.cbSubs_SelectedIndexChanged);
             // 
             // lblSubFrom
             // 
@@ -777,27 +778,27 @@ namespace Renamer
             this.lblTargetFilename.TabIndex = 8;
             this.lblTargetFilename.Text = "Target filename";
             // 
-            // btnSubs
+            // btnSearchForSubtitles
             // 
-            this.btnSubs.Location = new System.Drawing.Point(680, 244);
-            this.btnSubs.Name = "btnSubs";
-            this.btnSubs.Size = new System.Drawing.Size(85, 23);
-            this.btnSubs.TabIndex = 11;
-            this.btnSubs.Text = "Get Subtitles !";
-            this.btnSubs.UseVisualStyleBackColor = true;
-            this.btnSubs.Visible = false;
-            this.btnSubs.Click += new System.EventHandler(this.btnSubs_Click);
+            this.btnSearchForSubtitles.Location = new System.Drawing.Point(680, 244);
+            this.btnSearchForSubtitles.Name = "btnSearchForSubtitles";
+            this.btnSearchForSubtitles.Size = new System.Drawing.Size(85, 23);
+            this.btnSearchForSubtitles.TabIndex = 11;
+            this.btnSearchForSubtitles.Text = "Get Subtitles !";
+            this.btnSearchForSubtitles.UseVisualStyleBackColor = true;
+            this.btnSearchForSubtitles.Visible = false;
+            this.btnSearchForSubtitles.Click += new System.EventHandler(this.btnSearchForSubtitles_Click);
             // 
-            // btnAbout
+            // btnAboutApplication
             // 
-            this.btnAbout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAbout.Location = new System.Drawing.Point(923, 4);
-            this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new System.Drawing.Size(85, 23);
-            this.btnAbout.TabIndex = 10;
-            this.btnAbout.Text = "About...";
-            this.btnAbout.UseVisualStyleBackColor = true;
-            this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
+            this.btnAboutApplication.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAboutApplication.Location = new System.Drawing.Point(923, 4);
+            this.btnAboutApplication.Name = "btnAboutApplication";
+            this.btnAboutApplication.Size = new System.Drawing.Size(85, 23);
+            this.btnAboutApplication.TabIndex = 10;
+            this.btnAboutApplication.Text = "About...";
+            this.btnAboutApplication.UseVisualStyleBackColor = true;
+            this.btnAboutApplication.Click += new System.EventHandler(this.btnAboutApplication_Click);
             // 
             // cbProviders
             // 
@@ -820,62 +821,62 @@ namespace Renamer
             this.lblTitlesFrom.Text = "Get titles from";
             this.lblTitlesFrom.Visible = false;
             // 
-            // btnTitles
+            // btnSearchForTitles
             // 
-            this.btnTitles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTitles.Location = new System.Drawing.Point(447, 4);
-            this.btnTitles.Name = "btnTitles";
-            this.btnTitles.Size = new System.Drawing.Size(85, 23);
-            this.btnTitles.TabIndex = 5;
-            this.btnTitles.Text = "Get Titles !";
-            this.btnTitles.UseVisualStyleBackColor = true;
-            this.btnTitles.Click += new System.EventHandler(this.btnTitles_Click);
+            this.btnSearchForTitles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSearchForTitles.Location = new System.Drawing.Point(447, 4);
+            this.btnSearchForTitles.Name = "btnSearchForTitles";
+            this.btnSearchForTitles.Size = new System.Drawing.Size(85, 23);
+            this.btnSearchForTitles.TabIndex = 5;
+            this.btnSearchForTitles.Text = "Get Titles !";
+            this.btnSearchForTitles.UseVisualStyleBackColor = true;
+            this.btnSearchForTitles.Click += new System.EventHandler(this.btnSearchForTitles_Click);
             // 
-            // btnConfig
+            // btnOpenConfiguration
             // 
-            this.btnConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnConfig.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnConfig.Location = new System.Drawing.Point(832, 4);
-            this.btnConfig.Name = "btnConfig";
-            this.btnConfig.Size = new System.Drawing.Size(85, 23);
-            this.btnConfig.TabIndex = 3;
-            this.btnConfig.Text = "Configuration";
-            this.btnConfig.UseVisualStyleBackColor = true;
-            this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
+            this.btnOpenConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenConfiguration.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnOpenConfiguration.Location = new System.Drawing.Point(832, 4);
+            this.btnOpenConfiguration.Name = "btnOpenConfiguration";
+            this.btnOpenConfiguration.Size = new System.Drawing.Size(85, 23);
+            this.btnOpenConfiguration.TabIndex = 3;
+            this.btnOpenConfiguration.Text = "Configuration";
+            this.btnOpenConfiguration.UseVisualStyleBackColor = true;
+            this.btnOpenConfiguration.Click += new System.EventHandler(this.btnOpenConfiguration_Click);
             // 
-            // btnPath
+            // btnChangeCurrentFolder
             // 
-            this.btnPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnPath.Location = new System.Drawing.Point(379, 4);
-            this.btnPath.Name = "btnPath";
-            this.btnPath.Size = new System.Drawing.Size(28, 23);
-            this.btnPath.TabIndex = 2;
-            this.btnPath.Text = "...";
-            this.btnPath.UseVisualStyleBackColor = true;
-            this.btnPath.Click += new System.EventHandler(this.btnPath_Click);
+            this.btnChangeCurrentFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnChangeCurrentFolder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnChangeCurrentFolder.Location = new System.Drawing.Point(379, 4);
+            this.btnChangeCurrentFolder.Name = "btnChangeCurrentFolder";
+            this.btnChangeCurrentFolder.Size = new System.Drawing.Size(28, 23);
+            this.btnChangeCurrentFolder.TabIndex = 2;
+            this.btnChangeCurrentFolder.Text = "...";
+            this.btnChangeCurrentFolder.UseVisualStyleBackColor = true;
+            this.btnChangeCurrentFolder.Click += new System.EventHandler(this.btnChangeCurrentFolder_Click);
             // 
-            // txtPath
+            // txtCurrentFolderPath
             // 
-            this.txtPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtPath.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.txtPath.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystemDirectories;
-            this.txtPath.Location = new System.Drawing.Point(54, 6);
-            this.txtPath.Name = "txtPath";
-            this.txtPath.Size = new System.Drawing.Size(319, 20);
-            this.txtPath.TabIndex = 1;
-            this.txtPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtPath_KeyDown);
-            this.txtPath.Leave += new System.EventHandler(this.txtPath_Leave);
+            this.txtCurrentFolderPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtCurrentFolderPath.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.txtCurrentFolderPath.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystemDirectories;
+            this.txtCurrentFolderPath.Location = new System.Drawing.Point(54, 6);
+            this.txtCurrentFolderPath.Name = "txtCurrentFolderPath";
+            this.txtCurrentFolderPath.Size = new System.Drawing.Size(319, 20);
+            this.txtCurrentFolderPath.TabIndex = 1;
+            this.txtCurrentFolderPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtCurrentFolderPath_KeyDown);
+            this.txtCurrentFolderPath.Leave += new System.EventHandler(this.txtCurrentFolderPath_Leave);
             // 
-            // lblFolder
+            // lblCurrentFolderPath
             // 
-            this.lblFolder.AutoSize = true;
-            this.lblFolder.Location = new System.Drawing.Point(12, 9);
-            this.lblFolder.Name = "lblFolder";
-            this.lblFolder.Size = new System.Drawing.Size(36, 13);
-            this.lblFolder.TabIndex = 0;
-            this.lblFolder.Text = "Folder";
+            this.lblCurrentFolderPath.AutoSize = true;
+            this.lblCurrentFolderPath.Location = new System.Drawing.Point(12, 9);
+            this.lblCurrentFolderPath.Name = "lblCurrentFolderPath";
+            this.lblCurrentFolderPath.Size = new System.Drawing.Size(36, 13);
+            this.lblCurrentFolderPath.TabIndex = 0;
+            this.lblCurrentFolderPath.Text = "Folder";
             // 
             // txtLog
             // 
@@ -892,9 +893,9 @@ namespace Renamer
             // 
             // rtbLog
             // 
-            this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.rtbLog.Location = new System.Drawing.Point(12, 3);
             this.rtbLog.Name = "rtbLog";
             this.rtbLog.ReadOnly = true;
@@ -906,18 +907,18 @@ namespace Renamer
             this.rtbLog.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.rtbLog_LinkClicked);
             this.rtbLog.DoubleClick += new System.EventHandler(this.Log_DoubleClick);
             // 
-            // fbdPath
+            // fbdChangeCurrentFolder
             // 
-            this.fbdPath.Description = "Browse for folder containing series.";
-            this.fbdPath.ShowNewFolderButton = false;
+            this.fbdChangeCurrentFolder.Description = "Browse for folder containing series.";
+            this.fbdChangeCurrentFolder.ShowNewFolderButton = false;
             // 
-            // backgroundWorker1
+            // backgroundTaskWorker
             // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
-            this.backgroundWorker1.WorkerSupportsCancellation = true;
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundTaskWorker.WorkerReportsProgress = true;
+            this.backgroundTaskWorker.WorkerSupportsCancellation = true;
+            this.backgroundTaskWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundTaskWorker_DoWork);
+            this.backgroundTaskWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundTaskWorker_ProgressChanged);
+            this.backgroundTaskWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundTaskWorker_RunWorkerCompleted);
             // 
             // MainForm
             // 
@@ -929,17 +930,18 @@ namespace Renamer
             this.MinimumSize = new System.Drawing.Size(944, 506);
             this.Name = "MainForm";
             this.Text = "Series Renamer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.scContainer.Panel1.ResumeLayout(false);
             this.scContainer.Panel1.PerformLayout();
             this.scContainer.Panel2.ResumeLayout(false);
             this.scContainer.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.scContainer)).EndInit();
             this.scContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.lstEntries)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lstCandidateFiles)).EndInit();
             this.contextFiles.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -947,18 +949,18 @@ namespace Renamer
 
         #endregion
         private System.Windows.Forms.SplitContainer scContainer;
-        private System.Windows.Forms.Label lblFolder;
-        private System.Windows.Forms.TextBox txtPath;
-        private System.Windows.Forms.Button btnPath;
-        private System.Windows.Forms.Button btnConfig;
-        private System.Windows.Forms.FolderBrowserDialog fbdPath;
-        private System.Windows.Forms.Button btnTitles;
+        private System.Windows.Forms.Label lblCurrentFolderPath;
+        private System.Windows.Forms.TextBox txtCurrentFolderPath;
+        private System.Windows.Forms.Button btnChangeCurrentFolder;
+        private System.Windows.Forms.Button btnOpenConfiguration;
+        private System.Windows.Forms.FolderBrowserDialog fbdChangeCurrentFolder;
+        private System.Windows.Forms.Button btnSearchForTitles;
         private System.Windows.Forms.Label lblTargetFilename;
-        private System.Windows.Forms.TextBox txtTarget;
-        private System.Windows.Forms.Button btnRename;
+        private System.Windows.Forms.TextBox txtTargetFilenamePattern;
+        private System.Windows.Forms.Button btnRenameSelectedCandidates;
         private System.Windows.Forms.ComboBox cbProviders;
         private System.Windows.Forms.Label lblTitlesFrom;
-        private System.Windows.Forms.Button btnAbout;
+        private System.Windows.Forms.Button btnAboutApplication;
         private System.Windows.Forms.ContextMenuStrip contextFiles;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem setSeasonToolStripMenuItem;
@@ -969,8 +971,8 @@ namespace Renamer
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.Label lblSubFrom;
-        private System.Windows.Forms.Button btnSubs;
-        private System.Windows.Forms.ComboBox cbSubs;
+        private System.Windows.Forms.Button btnSearchForSubtitles;
+        private System.Windows.Forms.ComboBox cbSubtitleProviders;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStripMenuItem setEpisodesFromtoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editSubtitleToolStripMenuItem;
@@ -982,7 +984,7 @@ namespace Renamer
         private System.Windows.Forms.ToolStripMenuItem titleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newFileNameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem destinationNewFileNameToolStripMenuItem;
-        private System.Windows.Forms.Button btnOpen;
+        private System.Windows.Forms.Button btnExploreCurrentFolder;
         private System.Windows.Forms.TextBox txtLog;
         private System.Windows.Forms.ToolStripMenuItem operationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renamingToolStripMenuItem;
@@ -1010,8 +1012,8 @@ namespace Renamer
         private System.Windows.Forms.ToolStripMenuItem cAPSLOCKToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setShownameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem regexTesterToolStripMenuItem;
-        public System.Windows.Forms.ProgressBar progressBar1;
-        private BrightIdeasSoftware.FastObjectListView lstEntries;
+        public System.Windows.Forms.ProgressBar taskProgressBar;
+        private BrightIdeasSoftware.FastObjectListView lstCandidateFiles;
         private BrightIdeasSoftware.OLVColumn ColumnSource;
         private BrightIdeasSoftware.OLVColumn ColumnFilepath;
         private BrightIdeasSoftware.OLVColumn ColumnShowname;
@@ -1022,8 +1024,8 @@ namespace Renamer
         private BrightIdeasSoftware.OLVColumn ColumnNewFilename;
         private System.Windows.Forms.ToolStripMenuItem markAsMovieToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem markAsTVSeriesToolStripMenuItem;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        private System.Windows.Forms.Button btnCancel;
+        private System.ComponentModel.BackgroundWorker backgroundTaskWorker;
+        private System.Windows.Forms.Button btnCancelBackgroundTask;
         public System.Windows.Forms.Label lblFileListingProgress;
         private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutDialogToolStripMenuItem;

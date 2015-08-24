@@ -57,7 +57,8 @@ namespace Renamer.Classes
         public static void CopyFile(FileInfo source, FileInfo destination,
             CopyFileOptions options, CopyFileCallback callback, object state)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) 
+                throw new ArgumentNullException("source");
             if (destination == null)
                 throw new ArgumentNullException("destination");
             if ((options & ~CopyFileOptions.All) != 0)

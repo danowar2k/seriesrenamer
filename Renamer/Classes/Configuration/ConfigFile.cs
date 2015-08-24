@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 using System.IO;
-using Renamer.Classes.Configuration.Keywords;
 using System.Diagnostics;
 using Renamer.Logging;
 using System.Text.RegularExpressions;
@@ -25,31 +24,27 @@ using System.Text.RegularExpressions;
 namespace Renamer.Classes.Configuration
 {
     /// <summary>
-    /// Config file used as cache
+    /// ConfigKeyConstants file used as cache
     /// </summary>
     class ConfigFile : IEnumerable
     {
         /// <summary>
         /// File extension of config files
         /// </summary>
-        public static string filePattern = "*.cfg";
-        public static string Delimiter = "^";
+        public static string configFileExtensionPattern = "*.cfg";
+
+        public static string delimiter = "^";
 
         /// <summary>
-        /// Path of the file, is empty for internal defaults
+        /// Path of the configuration file, is empty for internal defaults
         /// </summary>
-        public string FilePath = "";
+        private string configFilePath = "";
 
         /// <summary>
-        /// Hashtable containing variables with Identifiers<br/>
-        /// Contains either a String or a list of Strings
+        /// Hashtable containing configuration properties accessible by their names<br/>
+        /// Its values are either a String or a list of Strings
         /// </summary>
-        private Hashtable variables = new Hashtable();
-        /// <summary>
-        /// Hashtable containing variables with Identifiers<br/>
-        /// Contains either a String or a list of Strings
-        /// </summary>
-        private Hashtable originalVariables = new Hashtable();
+        private Hashtable configurationProperties = new Hashtable();
 
         /// <summary>
         /// If set, cache has changed and file needs to be saved
@@ -59,15 +54,135 @@ namespace Renamer.Classes.Configuration
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="filepath">Path of the file, for manual file creation, leave empty here</param>
-        public ConfigFile(string filepath) {
-            FilePath = filepath;
-            if (filepath == null || filepath == "") {
+        /// <param name="someConfigFilePath">Path of the file, for manual file creation, leave empty here</param>
+        public ConfigFile(string someConfigFilePath) {
+            configFilePath = someConfigFilePath;
+            if (someConfigFilePath == null || someConfigFilePath == "") {
                 return;
             }
             ConfigFileParser parser = new ConfigFileParser(this);
-            parser.readConfigFile(filepath);
+            parser.readConfigFile(someConfigFilePath);
         }
+
+        /// <summary>
+        /// Saves the file
+        /// </summary>
+        public void Flush() {
+            if (needsFlush) {
+                this.cleanupConfigurationProperties();
+                ConfigFileWriter configWriter = new ConfigFileWriter(this);
+                configWriter.writeConfigFile(configFilePath);
+                needsFlush = false;
+            }
+        }
+
+        /// <summary>
+        /// Check whether a property is set in this configuration
+        /// </summary>
+        /// <param name="propertyName">Name of the property the config should be checked for.</param>
+        /// <returns>True if property has been set, false otherwise.</returns>
+        public bool containsProperty(string propertyName) {
+            return this.configurationProperties.ContainsKey(propertyName);
+        }
+
+        /// <summary>
+        /// Adds a property to the configuration.
+        /// <b>It's preferred to use the index operator to add variables</b>
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <param name="value">The value of the property</param>
+        private void addProperty(string propertyName, object value) {
+            this.configurationProperties.Add(propertyName, value);
+            this.needsFlush = true;
+        }
+
+        /// <summary>
+        /// Assigns a new value to an already existing configuration and 
+        /// check if a flush will be needed after performing this operation
+        /// </summary>
+        /// <param name="configKey"></param>
+        /// <param name="newValue"></param>
+        private void changeConfiguration(string configKey, object newValue) {
+            if (this.configurationProperties[configKey] != newValue) {
+                this.configurationProperties[configKey] = newValue;
+                this.needsFlush = true;
+            }
+        }
+
+        /// <summary>
+        /// IndexOperator for accessing configuration property directly with their names
+        /// </summary>
+        /// <param name="propertyName">Key of the variable.</param>
+        /// <returns>The variable</returns>
+        public object this[string propertyName] {
+            get {
+                Settings settings = Settings.Instance;
+                if (this.containsProperty(propertyName)) {
+                    return this.configurationProperties[propertyName];
+                }
+                if (settings.Defaults.containsProperty(propertyName)) {
+                    this[propertyName] = settings.Defaults[propertyName];
+                    return this[propertyName];
+                }
+                else {
+                    Logger.Instance.LogMessage("Couldn't find property " + propertyName + " in " + configFilePath, LogLevel.ERROR);
+                    return null;
+                }
+            }
+            set {
+
+                if (value is List<string>) {
+                    value = ((List<string>)value).ToArray();
+                }
+
+                if (this.containsProperty(propertyName)) {
+                    this.changeConfiguration(propertyName, value);
+                }
+                else {
+
+                    this.addProperty(propertyName, value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads default settings to this config file
+        /// </summary>
+        public void LoadDefaults() {
+            Settings settings = Settings.Instance;
+            this.configurationProperties = (Hashtable)settings.Defaults.configurationProperties.Clone();
+        }
+
+        /// <summary>
+        /// Converts lists of strings to arrays to get consistent types
+        /// </summary>
+        private void cleanupConfigurationProperties() {
+            object[] keys = new object[this.configurationProperties.Keys.Count];
+            this.configurationProperties.Keys.CopyTo(keys, 0);
+            foreach (object key in keys) {
+                if (this.configurationProperties[key] is List<string>) {                   
+                    Debug.WriteLine(this.configurationProperties);
+                    this.configurationProperties[key] = ((List<string>)this.configurationProperties[key]).ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Number of configured properties
+        /// </summary>
+        public int countProperties {
+            get {
+                return this.configurationProperties.Count;
+            }
+        }
+
+        #region IEnumerable Member
+
+        public IEnumerator GetEnumerator() {
+            return this.configurationProperties.Keys.GetEnumerator();
+        }
+
+        #endregion
 
         /// <summary>
         /// Parser for configurationfiles
@@ -82,11 +197,11 @@ namespace Renamer.Classes.Configuration
                 NormalLine
             };
 
-            private ParserState lastState;
+            private ParserState prevState;
             private Settings settings;
-            private string line;
+            private string currentLine;
             private int lineCounter;
-            private string currentKey;
+            private string currentPropertyName;
             private List<string> currentValues;
             private ConfigFile config;
 
@@ -94,9 +209,10 @@ namespace Renamer.Classes.Configuration
             /// Creates a new ConfigFileParser object for a given config
             /// </summary>
             /// <param name="config">ConfigFile the parser should store the data of the config file.</param>
-            public ConfigFileParser(ConfigFile config) {
+            public ConfigFileParser(ConfigFile config)
+            {
                 this.settings = Settings.Instance;
-                line = null;
+                currentLine = null;
                 lineCounter = 0;
                 this.config = config;
             }
@@ -105,90 +221,102 @@ namespace Renamer.Classes.Configuration
             /// Parse the given configuration file and stores the data to the config
             /// </summary>
             /// <param name="filepath"></param>
-            public void readConfigFile(string filepath) {
-                lastState = ParserState.NormalLine;
+            public void readConfigFile(string filepath)
+            {
+                prevState = ParserState.NormalLine;
                 FileStream s = null;
                 StreamReader r = null;
-                try {
+                try
+                {
                     s = File.Open(filepath, FileMode.OpenOrCreate, FileAccess.Read);
                     r = new StreamReader(s);
-                    while ((line = r.ReadLine()) != null) {
+                    while ((currentLine = r.ReadLine()) != null)
+                    {
                         //Remove leading and trailing whitespaces
-                        line = line.Trim();
-                        
+                        currentLine = currentLine.Trim();
+
                         //space escape sequence
-                        if (line.StartsWith("\"") && line.EndsWith("\""))
+                        if (currentLine.StartsWith("\"") && currentLine.EndsWith("\""))
                         {
-                            line = line.Substring(1, line.Length - 2);
+                            currentLine = currentLine.Substring(1, currentLine.Length - 2);
                         }
 
                         lineCounter++;
                         // Skip empty lines
-                        if (String.IsNullOrEmpty(line)) {
+                        if (String.IsNullOrEmpty(currentLine))
+                        {
                             continue;
                         }
-                        //skipping comments
-                        if (lastState != ParserState.MultiValueField && line.StartsWith(settings.Comment)) {
-                            if (lastState != ParserState.Comment) {
-                                //FIX Cannot log here, because this will cause a endless loop of calls to myself 
-                                //Logger.Instance.LogMessage("Skipping comment", LogLevel.DEBUG);
-                                lastState = ParserState.Comment;
-                            }
+                        // ignoring comments in MultiValueFields
+                        if (prevState != ParserState.MultiValueField && currentLine.StartsWith(Settings.COMMENT))
+                        {
+                            prevState = ParserState.Comment;
                             continue;
                         }
+
                         // remove comments at the end of a line
-                        int linePosition;
-                        string valuePartOfLine;
-                        if (lastState != ParserState.MultiValueField) {
-                            if ((linePosition = line.IndexOf("=")) > 0) {
+                        if (prevState != ParserState.MultiValueField)
+                        {
+                            int keyValueSplitIndex = currentLine.IndexOf("=");
+                            if (keyValueSplitIndex > 0)
+                            {
                                 // extract key from line
-                                currentKey = line.Substring(0, linePosition).Trim();
-                                valuePartOfLine = line.Substring(linePosition + 1).Trim();
+                                currentPropertyName = currentLine.Substring(0, keyValueSplitIndex).Trim();
+
+                                string valuePart = currentLine.Substring(keyValueSplitIndex + 1).Trim();
+                                if (String.IsNullOrEmpty(valuePart))
+                                {
+                                    //Logger.Instance.LogMessage("Option " + currentPropertyName + " is empty", LogLevel.DEBUG);
+                                }
                                 // continue if a multivalue field is found
-                                if (valuePartOfLine == settings.BeginMultiValueField) {
-                                    this.lastState = ParserState.MultiValueField;
+                                if (valuePart == Settings.BEGIN_MULTI_VALUE_FIELD)
+                                {
+                                    this.prevState = ParserState.MultiValueField;
                                     this.currentValues = new List<string>();
                                     continue;
                                 }
-                                if (String.IsNullOrEmpty(valuePartOfLine)) {
-                                    //Logger.Instance.LogMessage("Option " + currentKey + " is empty", LogLevel.DEBUG);
-                                }
 
-                                config[currentKey] = valuePartOfLine;
-                                this.lastState = ParserState.NormalLine;
+                                config[currentPropertyName] = valuePart;
+                                this.prevState = ParserState.NormalLine;
                             }
-                            else {
+                            else
+                            {
                                 //Logger.Instance.LogMessage("The configfile seems to be corrupt (at line " + lineCounter + "), I'll try to ignore this", LogLevel.WARNING);
                             }
                         }
-                        else /* Multi Value Field */ {
-                            if (line == settings.EndMultiValueField) {
-                                config[currentKey] = currentValues;
-                                this.lastState = ParserState.NormalLine;
+                        else /* Multi Value Field */
+                        {
+                            if (currentLine == Settings.END_MULTI_VALUE_FIELD)
+                            {
+                                config[currentPropertyName] = currentValues;
+                                this.prevState = ParserState.NormalLine;
                                 continue;
                             }
-                            currentValues.Add(line);
+                            currentValues.Add(currentLine);
                         }
 
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     config.LoadDefaults();
                     config.Flush();
                     Logger.Instance.LogMessage("Couldn't process config file " + filepath + ":" + ex.Message, LogLevel.ERROR);
                     Logger.Instance.LogMessage("Using default values", LogLevel.WARNING);
                 }
-                finally {
-                    if (s != null) {
+                finally
+                {
+                    if (s != null)
+                    {
                         s.Close();
                     }
-                    if (r != null) {
+                    if (r != null)
+                    {
                         r.Close();
                     }
                 }
             }
         }
-
 
         /// <summary>
         /// Stores a ConfigFile in a File
@@ -204,11 +332,11 @@ namespace Renamer.Classes.Configuration
                 NormalLine
             };
 
-            private ParserState lastState;
+            private ParserState prevState;
             private Settings settings;
-            private string line;
+            private string currentLine;
             private int lineCounter;
-            private string currentKey;
+            private string currentPropertyName;
             private ConfigFile config;
             private List<string> writtenProperties;
             StreamWriter fileWriter;
@@ -217,12 +345,13 @@ namespace Renamer.Classes.Configuration
             /// Creates a new ConfigFileWriter object for a given config
             /// </summary>
             /// <param name="config">ConfigFile the writer should read the data from.</param>
-            public ConfigFileWriter(ConfigFile config) {
+            public ConfigFileWriter(ConfigFile config)
+            {
                 this.settings = Settings.Instance;
-                this.line = null;
+                this.currentLine = null;
                 this.lineCounter = 0;
                 this.config = config;
-                this.writtenProperties = new List<string>(config.Count);
+                this.writtenProperties = new List<string>(config.countProperties);
                 this.fileWriter = null;
             }
 
@@ -231,52 +360,65 @@ namespace Renamer.Classes.Configuration
             /// Writes the <see cref="config"/> to the given path.
             /// </summary>
             /// <param name="filepath">Path where config file should be stored to.</param>
-            public void writeConfigFile(string filepath) {
-                lastState = ParserState.NormalLine;
+            public void writeConfigFile(string filepath)
+            {
+                prevState = ParserState.NormalLine;
                 FileStream writeStream = null;
-                try {
+                try
+                {
                     FileStream fileStream = File.Open(filepath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     StreamReader fileReader = new StreamReader(fileStream);
                     writeStream = File.Open(filepath + ".tmp", FileMode.Create, FileAccess.ReadWrite);
                     fileWriter = new StreamWriter(writeStream);
                     fileWriter.AutoFlush = true;
-                    while ((line = fileReader.ReadLine()) != null) {
+                    while ((currentLine = fileReader.ReadLine()) != null)
+                    {
                         //Remove leading and trailing whitespaces
-                        line = line.Trim();
+                        currentLine = currentLine.Trim();
                         lineCounter++;
                         // Skip empty lines
-                        if (String.IsNullOrEmpty(line)) {
+                        if (String.IsNullOrEmpty(currentLine))
+                        {
                             continue;
                         }
                         // redirect comments
-                        if (lastState != ParserState.MultiValueField && line.StartsWith(settings.Comment)) {
-                            fileWriter.WriteLine(line);
-                            lastState = ParserState.Comment;
+                        if (prevState != ParserState.MultiValueField && currentLine.StartsWith(Settings.COMMENT))
+                        {
+                            fileWriter.WriteLine(currentLine);
+                            prevState = ParserState.Comment;
                             continue;
                         }
-                        // remove comments at the end of a line
-                        line = this.removeComment();
-                        int linePosition;
-                        if (lastState != ParserState.MultiValueField) {
-                            if ((linePosition = line.IndexOf("=")) > 0) {
+
+                        currentLine = this.removeTrailingComment(currentLine);
+
+                        if (prevState != ParserState.MultiValueField)
+                        {
+                            int keyValueSplitIndex = currentLine.IndexOf("=");
+                            if (keyValueSplitIndex > 0)
+                            {
                                 // extract key from line
-                                currentKey = line.Substring(0, linePosition).Trim();
-                                writeVariable();
+                                currentPropertyName = currentLine.Substring(0, keyValueSplitIndex).Trim();
+                                writeProperty();
                             }
                         }
-                        else /* Multi Value Field */ {
-                            if (line == settings.EndMultiValueField) {
-                                this.lastState = ParserState.NormalLine;
+                        else /* Multi Value Field */
+                        {
+                            if (currentLine == Settings.END_MULTI_VALUE_FIELD)
+                            {
+                                this.prevState = ParserState.NormalLine;
                             }
                         }
                     }
                     // check for unwritten properties, added to the config
                     // TODO: maybe replace with non linear search for better performance
-                    if (this.writtenProperties.Count < this.config.Count) {
-                        foreach (string key in this.config) {
-                            if (!this.writtenProperties.Contains(key)) {
-                                currentKey = key;
-                                writeVariable();
+                    if (this.writtenProperties.Count < this.config.countProperties)
+                    {
+                        foreach (string key in this.config)
+                        {
+                            if (!this.writtenProperties.Contains(key))
+                            {
+                                currentPropertyName = key;
+                                writeProperty();
                             }
                         }
                     }
@@ -286,11 +428,14 @@ namespace Renamer.Classes.Configuration
                     writeStream.Close();
                     File.Move(filepath + ".tmp", filepath);
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     Logger.Instance.LogMessage("Couldn't write config file " + filepath + "\nFehler:\n" + ex.Message, LogLevel.ERROR);
                 }
-                finally {
-                    if (writeStream != null) {
+                finally
+                {
+                    if (writeStream != null)
+                    {
                         writeStream.Close();
                         File.Delete(filepath + ".tmp");
                     }
@@ -298,32 +443,37 @@ namespace Renamer.Classes.Configuration
             }
 
             /// <summary>
-            /// Writes variable with the <see cref="currentKey"/> to the <see cref="fileWriter"/>
+            /// Writes variable with the <see cref="currentPropertyName"/> to the <see cref="fileWriter"/>
             /// </summary>
-            private void writeVariable() {
-                line = currentKey + "=";
-                if (config.containsVariable(currentKey)) {
+            private void writeProperty()
+            {
+                currentLine = currentPropertyName + "=";
+                if (config.containsProperty(currentPropertyName))
+                {
 
-                    this.writtenProperties.Add(currentKey);
+                    this.writtenProperties.Add(currentPropertyName);
 
-                    if (config[currentKey] is string[]) {
-                        this.lastState = ParserState.MultiValueField;
-                        line += settings.BeginMultiValueField;
-                        fileWriter.WriteLine(line);
+                    if (config[currentPropertyName] is string[])
+                    {
+                        this.prevState = ParserState.MultiValueField;
+                        currentLine += Settings.BEGIN_MULTI_VALUE_FIELD;
+                        fileWriter.WriteLine(currentLine);
 
                         //recoverEasyRegex((string[])config[currentKey]));
-                        foreach (string val in ((string[])config[currentKey])) {                            
+                        foreach (string val in ((string[])config[currentPropertyName]))
+                        {
                             fileWriter.WriteLine("\t" + Escape(val));
                         }
-                        line = settings.EndMultiValueField;
+                        currentLine = Settings.END_MULTI_VALUE_FIELD;
                     }
-                    else {
-                        line += Escape((string)config[currentKey]);
-                        this.lastState = ParserState.NormalLine;
+                    else
+                    {
+                        currentLine += Escape((string)config[currentPropertyName]);
+                        this.prevState = ParserState.NormalLine;
                     }
                 }
 
-                fileWriter.WriteLine(line);
+                fileWriter.WriteLine(currentLine);
                 fileWriter.WriteLine();
             }
 
@@ -331,13 +481,16 @@ namespace Renamer.Classes.Configuration
             /// removes trailing comments on a line
             /// </summary>
             /// <returns>line without comments</returns>
-            private string removeComment() {
-                int commentStart = line.IndexOf(settings.Comment);
-                if (commentStart == -1) {
-                    return line;
+            private string removeTrailingComment(string someLine)
+            {
+                int commentStart = currentLine.IndexOf(Settings.COMMENT);
+                if (commentStart == -1)
+                {
+                    return currentLine;
                 }
-                return line.Substring(0, line.IndexOf(settings.Comment));
+                return currentLine.Substring(0, currentLine.IndexOf(Settings.COMMENT));
             }
+
             private string Escape(string v)
             {
                 if (v.StartsWith(" ") || v.EndsWith(" "))
@@ -347,138 +500,7 @@ namespace Renamer.Classes.Configuration
                 return v;
             }
         }
-        
-        /// <summary>
-        /// Saves the file
-        /// </summary>
-        public void Flush() {
-            if (NeedsFlush) {
-                this.cleanUpVariables();
-                ConfigFileWriter configWriter = new ConfigFileWriter(this);
-                configWriter.writeConfigFile(FilePath);
-                needsFlush = false;
-            }
-        }
 
-        /// <summary>
-        /// Check wether a variable is available in the config or not.
-        /// </summary>
-        /// <param name="name">Name of the variable the config should be checked for.</param>
-        /// <returns>True if variable is availabe, false otherwise.</returns>
-        public bool containsVariable(string name) {
-            return this.variables.ContainsKey(name);
-        }
-
-        /// <summary>
-        /// Add a variable to the config.
-        /// <b>It's prefered to use the index operator to add variables</b>
-        /// </summary>
-        /// <param name="key">Key for the variable.</param>
-        /// <param name="value">The variable itself.</param>
-        private void addVariable(string key, object value) {
-            if (value is string[]) {
-                this.originalVariables.Add(key, ((string[])value).Clone());
-            }
-            else {
-                this.originalVariables.Add(key, ((string)value).Clone());
-            }
-            this.variables.Add(key, value);
-            this.needsFlush = true;
-        }
-
-        /// <summary>
-        /// Assigns a new value to a already existing variable and check if a flush will be needed after poerfoming this operation
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        private void setVariable(string key, object value) {
-            if (this.variables[key] != value) {
-                this.variables[key] = value;
-                this.needsFlush = true;
-            }
-        }
-
-        /// <summary>
-        /// IndexOperator for accessing variables directly with the key
-        /// </summary>
-        /// <param name="key">Key of the variable.</param>
-        /// <returns>The variable</returns>
-        public object this[string key] {
-            get {
-                Settings settings = Settings.Instance;
-                if (this.containsVariable(key)) {
-                    return this.variables[key];
-                }
-                if (settings.Defaults.containsVariable(key)) {
-                    this[key] = settings.Defaults[key];
-                    return this[key];
-                }
-                else {
-                    Logger.Instance.LogMessage("Couldn't find property " + key + " in " + FilePath, LogLevel.ERROR);
-                    return null;
-                }
-            }
-            set {
-
-                if (value is List<string>) {
-                    value = ((List<string>)value).ToArray();
-                }
-
-                if (this.containsVariable(key)) {
-                    this.setVariable(key, value);
-                }
-                else {
-
-                    this.addVariable(key, value);
-                }
-            }
-        }
-        /// <summary>
-        /// Return true if the file should be flushed/written.
-        /// </summary>
-        public bool NeedsFlush {
-            get {
-                return this.needsFlush;
-            }
-        }
-
-        /// <summary>
-        /// Loads default settings to this config file
-        /// </summary>
-        public void LoadDefaults() {
-            Settings settings = Settings.Instance;
-            this.variables = (Hashtable)settings.Defaults.variables.Clone();
-        }
-
-        /// <summary>
-        /// Converts lists of strings to arrays to get consistent types
-        /// </summary>
-        private void cleanUpVariables() {
-            object[] keys = new object[this.variables.Keys.Count];
-            this.variables.Keys.CopyTo(keys, 0);
-            foreach (object key in keys) {
-                if (this.variables[key] is List<string>) {                   
-                    Debug.WriteLine(this.variables);
-                    this.variables[key] = ((List<string>)this.variables[key]).ToArray();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Number of known variables
-        /// </summary>
-        public int Count {
-            get {
-                return this.variables.Count;
-            }
-        }
-
-        #region IEnumerable Member
-
-        public IEnumerator GetEnumerator() {
-            return this.variables.Keys.GetEnumerator();
-        }
-
-        #endregion
     }
+
 }

@@ -324,7 +324,7 @@ namespace ListViewEx
 				rcSubItem.Width = this.Width-rcSubItem.Left;
 			}
 
-			// Subitem bounds are relative to the location of the ListView!
+			// Subitem bounds are relative to the subPath of the ListView!
 			rcSubItem.Offset(Left, Top);
 
 			// In case the editing control and the listview are on different parents,

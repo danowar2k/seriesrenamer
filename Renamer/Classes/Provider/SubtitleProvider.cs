@@ -17,13 +17,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Renamer.Logging;
-using Renamer.Classes.Configuration.Keywords;
 using Renamer.Classes.Configuration;
 
 namespace Renamer.Classes.Provider
 {
     /// <summary>
-    /// A subtitle file provider
+    /// A subtitle file titleProvider
     /// </summary>
     class SubtitleProvider : Provider
     {
@@ -46,7 +45,7 @@ namespace Renamer.Classes.Provider
          * is there a way to move this to the superclass ...
          * */
         public static void LoadAll() {
-            string[] providers = getFiles(location);
+            string[] providers = getConfigurationFileNames(location);
             string status = "Providers found:";
             foreach (string file in providers) {
                 Logger.Instance.LogMessage("Provider: " + file, LogLevel.DEBUG);
@@ -73,12 +72,12 @@ namespace Renamer.Classes.Provider
         }
         public SubtitleProvider(string filename)
             : base(filename) {
-            this.SubtitlesPage = Helper.ReadProperty(ProviderConfig.Subtitles.SubtitlesPage, filename);
-            this.SubtitleRegExp = Helper.ReadProperty(ProviderConfig.Subtitles.SubtitleRegExp, filename);
-            this.SubtitlesURL = Helper.ReadProperty(ProviderConfig.Subtitles.SubtitlesURL, filename);
-            this.SubtitlesStart = Helper.ReadProperty(ProviderConfig.Subtitles.SubtitlesStart, filename);
-            this.SubtitlesEnd = Helper.ReadProperty(ProviderConfig.Subtitles.SubtitlesEnd, filename);
-            this.ConstructLink = Helper.ReadProperty(ProviderConfig.Subtitles.ConstructLink, filename);
+            this.SubtitlesPage = Helper.ReadProperty(ProviderConfigKeyConstants.SubtitlesKeyConstants.SUBTITLES_PAGE_KEY, filename);
+            this.SubtitleRegExp = Helper.ReadProperty(ProviderConfigKeyConstants.SubtitlesKeyConstants.REGEX_SUBTITLE_KEY, filename);
+            this.SubtitlesURL = Helper.ReadProperty(ProviderConfigKeyConstants.SubtitlesKeyConstants.SUBTITLES_URL_KEY, filename);
+            this.SubtitlesStart = Helper.ReadProperty(ProviderConfigKeyConstants.SubtitlesKeyConstants.SUBTITLES_START_KEY, filename);
+            this.SubtitlesEnd = Helper.ReadProperty(ProviderConfigKeyConstants.SubtitlesKeyConstants.SUBTITLES_END_KEY, filename);
+            this.ConstructLink = Helper.ReadProperty(ProviderConfigKeyConstants.SubtitlesKeyConstants.CONSTRUCT_LINK_KEY, filename);
             list.Add(this);
         }
 
@@ -101,18 +100,18 @@ namespace Renamer.Classes.Provider
 
 
         /// <summary>
-        /// Gets currently selected subtitle provider
+        /// Gets currently selected subtitle titleProvider
         /// </summary>
-        /// <returns>Currently selected subtitle provider, or null if error</returns>
+        /// <returns>Currently selected subtitle titleProvider, or null if error</returns>
         public static SubtitleProvider GetCurrentProvider() {
-            return GetProviderByName(Helper.ReadProperty(Config.LastSubProvider));
+            return GetProviderByName(Helper.ReadProperty(ConfigKeyConstants.LAST_SELECTED_SUBTITLE_PROVIDER_KEY));
         }
 
         /// <summary>
-        /// Gets a subtitle provider by its name
+        /// Gets a subtitle titleProvider by its name
         /// </summary>
-        /// <param name="name">name of the subtitle provider</param>
-        /// <returns>subtitle provider matching the name, or null if not found</returns>
+        /// <param name="name">name of the subtitle titleProvider</param>
+        /// <returns>subtitle titleProvider matching the name, or null if not found</returns>
         public static SubtitleProvider GetProviderByName(string name) {
             foreach (SubtitleProvider sp in List) {
                 if (sp.Name == name) {

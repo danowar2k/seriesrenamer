@@ -15,22 +15,23 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Renamer.Classes.Configuration.Keywords;
 using System.IO;
 using Renamer.Classes.Configuration;
 
 namespace Renamer.Classes.Provider
 {
     /// <summary>
-    /// An abstract provider
+    /// An abstract titleProvider of tv show episode titles
     /// </summary>
     public abstract class Provider
     {
+        private static string appBaseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
         /// <summary>
-        /// <see cref="Name"/>
+        /// <see cref="name"/>
         /// </summary>
         private string name = "";
-        public string filename = "";
+        public string configurationFilePath = "";
         /// <summary>
         /// <see cref="SearchUrl"/>
         /// </summary>
@@ -44,40 +45,47 @@ namespace Renamer.Classes.Provider
         private string searchStart = "";
         private string searchEnd = "";
         private string notFoundUrl = "";
-        private Helper.Languages language; //Helper.Languages.None
+        private Helper.Languages language; //Helper.languagePriorities.None
         private string searchResultsBlacklist = "";
         private string relationsRemove = "";
+
         public Provider() {
-        }
-        public Provider(string filename) {
 
-            this.Name = Helper.ReadProperty(ProviderConfig.Name, filename);
-            this.filename = filename;
-            this.SearchRegExp = Helper.ReadProperty(ProviderConfig.SearchRegExp, filename);
-            this.SearchResultsUrl = Helper.ReadProperty(ProviderConfig.SearchResultsURL, filename);
-            this.SearchUrl = Helper.ReadProperty(ProviderConfig.SearchURL, filename);
-            this.SeriesUrl = Helper.ReadProperty(ProviderConfig.SeriesURL, filename);
-            this.SearchRemove = Helper.ReadProperties(ProviderConfig.SearchRemove, filename);
-            this.SearchStart = Helper.ReadProperty(ProviderConfig.SearchStart, filename);
-            this.SearchEnd = Helper.ReadProperty(ProviderConfig.SearchEnd, filename);
-            this.NotFoundUrl = Helper.ReadProperty(ProviderConfig.NotFoundURL, filename);
-            this.Encoding = Helper.ReadProperty(ProviderConfig.Encoding, filename);
-            this.Language = Helper.ReadEnum<Helper.Languages>(ProviderConfig.Language, filename);
-            this.SearchRightToLeft = Helper.ReadBool(ProviderConfig.SearchRightToLeft, filename);
-            this.SearchResultsBlacklist = Helper.ReadProperty(ProviderConfig.SearchResultsBlacklist, filename);
-            this.RelationsRemove = Helper.ReadProperty(ProviderConfig.RelationsRemove, filename);
         }
 
+        public Provider(string someConfigurationFilePath) {
 
-        protected static string[] getFiles(string location){
-            return Directory.GetFiles(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + location, ConfigFile.filePattern);
+            this.configurationFilePath = someConfigurationFilePath;
+            this.Name = Helper.ReadProperty(ProviderConfigKeyConstants.PROVIDER_NAME_KEY, someConfigurationFilePath);
+            this.SearchRegExp = Helper.ReadProperty(ProviderConfigKeyConstants.REGEX_PARSE_SEARCH_RESULTS_KEY, someConfigurationFilePath);
+            this.SearchResultsUrl = Helper.ReadProperty(ProviderConfigKeyConstants.SEARCH_RESULTS_URL_KEY, someConfigurationFilePath);
+            this.SearchUrl = Helper.ReadProperty(ProviderConfigKeyConstants.SEARCH_URL_KEY, someConfigurationFilePath);
+            this.SeriesUrl = Helper.ReadProperty(ProviderConfigKeyConstants.SERIES_URL_KEY, someConfigurationFilePath);
+            this.SearchRemove = Helper.ReadProperties(ProviderConfigKeyConstants.SEARCH_REMOVE_KEY, someConfigurationFilePath);
+            this.SearchStart = Helper.ReadProperty(ProviderConfigKeyConstants.SEARCH_START_KEY, someConfigurationFilePath);
+            this.SearchEnd = Helper.ReadProperty(ProviderConfigKeyConstants.SEARCH_END_KEY, someConfigurationFilePath);
+            this.NotFoundUrl = Helper.ReadProperty(ProviderConfigKeyConstants.NOT_FOUND_URL_KEY, someConfigurationFilePath);
+            this.Encoding = Helper.ReadProperty(ProviderConfigKeyConstants.ENCODING_KEY, someConfigurationFilePath);
+            this.Language = Helper.ReadEnum<Helper.Languages>(ProviderConfigKeyConstants.LANGUAGE_KEY, someConfigurationFilePath);
+            this.SearchRightToLeft = Helper.ReadBool(ProviderConfigKeyConstants.SEARCH_RIGHT_TO_LEFT_KEY, someConfigurationFilePath);
+            this.SearchResultsBlacklist = Helper.ReadProperty(ProviderConfigKeyConstants.REGEX_SEARCH_RESULTS_BLACKLIST_KEY, someConfigurationFilePath);
+            this.RelationsRemove = Helper.ReadProperty(ProviderConfigKeyConstants.RELATIONS_REMOVE_KEY, someConfigurationFilePath);
+        }
+
+
+        /// <summary>
+        /// Returns an array of all filenames in the given subfolder of the application
+        /// </summary>
+        protected static string[] getConfigurationFileNames(string appSubFolder)
+        {
+            return Directory.GetFiles(appBaseDir + appSubFolder, ConfigFile.configFileExtensionPattern);
         }
 
 
         
 
         /// <summary>
-        /// Name of the provider
+        /// name of the titleProvider
         /// </summary>
         public string Name {
             get { return name; }
@@ -171,7 +179,7 @@ namespace Renamer.Classes.Provider
         }
 
         /// <summary>
-        /// Language can be specified, but doesn't have to be
+        /// LANGUAGE_KEY can be specified, but doesn't have to be
         /// </summary>
         public Helper.Languages Language {
             get { return language; }

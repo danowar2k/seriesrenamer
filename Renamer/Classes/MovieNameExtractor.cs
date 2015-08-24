@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.Text.RegularExpressions;
 using System.IO;
 
@@ -23,12 +23,12 @@ namespace Renamer.Classes
         private string filenameBlacklist;
         //extracted name
         private string name;
-        //if filename is blacklisted
+        //if configurationFilePath is blacklisted
         private bool filenameBlacklisted;
         //if path is blacklisted
         private bool pathBlacklisted;
-        //the involved InfoEntry
-        private InfoEntry ie;
+        //the involved Candidate
+        private Candidate ie;
         //the part of a multifilevideo
         private static int part;
         //is this file a multifile video?
@@ -57,16 +57,16 @@ namespace Renamer.Classes
 
         //we should do the other initializations here too, because they won't update when the user changes the configuration if they are initialized in the constructor
         private void reset() {
-            string[] tags = Helper.ReadProperties(Config.Tags);
+            string[] tags = Helper.ReadProperties(ConfigKeyConstants.MOVIES_TAGS_TO_REMOVE_LIST_KEY);
             List<string> MovieRegexes = new List<string>();
             foreach (string s in tags)
             {
                 MovieRegexes.Add("[^A-Za-z0-9]+" + s);
             }
             MovieTagPatterns = MovieRegexes.ToArray();
-            string[] blacklist = Helper.ReadProperties(Config.PathBlacklist);
+            string[] blacklist = Helper.ReadProperties(ConfigKeyConstants.SHOWNAME_PATH_WORD_BLACKLIST_KEY);
             pathBlacklist = String.Join("|", blacklist);
-            blacklist = Helper.ReadProperties(Config.FilenameBlacklist);
+            blacklist = Helper.ReadProperties(ConfigKeyConstants.SHOWNAME_FILENAME_BLACKLIST_KEY);
             filenameBlacklist = String.Join("|", blacklist);
             MovieNameFromDirectory = false;
             name = null;
@@ -77,8 +77,8 @@ namespace Renamer.Classes
             filenameBlacklisted = false;
         }
 
-        //NOTE: Need a feature to detect if the sequel name is already contained within the filename but was found somewhere else(eg directory) and added to the end again, e.g. "Hackers 2 Operation Takedown 2"
-        public string ExtractMovieName(InfoEntry ie)
+        //NOTE: Need a feature to detect if the sequel name is already contained within the configurationFilePath but was found somewhere else(eg directory) and added to the end again, e.g. "Hackers 2 Operation Takedown 2"
+        public string ExtractMovieName(Candidate ie)
         {
             reset();
             this.ie = ie;
@@ -141,7 +141,7 @@ namespace Renamer.Classes
                 int firsttag = testname.Length;
                 //remove tags and store the first occurence of a tag 
                 //since we may miss a few tags, the string after the first occurence of a tag is removed later (not now since it may
-                //contain additional information). Tags need to be removed before part and sequel detection, to avoid detecting things like 720p
+                //contain additional information). MOVIES_TAGS_TO_REMOVE_LIST_KEY need to be removed before part and sequel detection, to avoid detecting things like 720p
                 foreach (string s in MovieTagPatterns)
                 {
                     Match m = Regex.Match(testname, s, RegexOptions.IgnoreCase);

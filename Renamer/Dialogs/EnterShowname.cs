@@ -20,7 +20,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 
 namespace Renamer.Dialogs
 {
@@ -41,7 +41,7 @@ namespace Renamer.Dialogs
         public EnterShowname(string Showname)
         {
             InitializeComponent();
-            cbFiles.Items.AddRange(Helper.ReadProperties(Config.LastTitles));
+            cbFiles.Items.AddRange(Helper.ReadProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY));
             if (cbFiles.Items.Count > 0)
             {
                 cbFiles.SelectedIndex = 0;
@@ -66,7 +66,7 @@ namespace Renamer.Dialogs
         {
             SelectedName = cbFiles.Text;
             DialogResult = DialogResult.OK;
-            List<string> LastTitles = new List<string>(Helper.ReadProperties(Config.LastTitles));
+            List<string> LastTitles = new List<string>(Helper.ReadProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY));
             for (int i = 0; i < LastTitles.Count; i++)
             {
                 string str = (string)LastTitles[i];
@@ -74,7 +74,7 @@ namespace Renamer.Dialogs
                 {
                     LastTitles.Remove(str);
                     LastTitles.Insert(0, SelectedName);
-                    Helper.WriteProperties(Config.LastTitles, LastTitles.ToArray());
+                    Helper.WriteProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY, LastTitles.ToArray());
                     break;
                 }
             }

@@ -21,7 +21,6 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using Renamer.Classes;
-using Renamer.Classes.Configuration.Keywords;
 using Renamer.Classes.Configuration;
 using Renamer.Logging;
 using System.ComponentModel;
@@ -114,15 +113,15 @@ namespace Renamer
 
         /// <summary>
         /// Figures out if this is a movie file by looking at the destination path. Right now this only works
-        /// if season subdirectories are used, as this check looks for the season directory folder in the destination
+        /// if seasonNr subdirectories are used, as this check looks for the seasonNr directory folder in the destination
         /// path. Future versions might also check for similarity between the name of the file and the destination folder,
         /// since movie files are to be put in the same folder as their name (minus part identifiers, i.e. "CD1").
         /// </summary>
         /// <param name="ie">the file which is checked</param>
         /// <returns>true if ie is a movie file, false otherwise</returns>
-        public static bool IsMovie(InfoEntry ie) {
+        public static bool IsMovie(Candidate ie) {
             if (ie.Destination == "") return false;
-            string[] patterns = Helper.ReadProperties(Config.Extract);
+            string[] patterns = Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY);
             for (int i = patterns.Length - 1; i >= 0; i--) {
                 string seasondir = patterns[i].Replace("%E", "\\d*");
                 seasondir = seasondir.Replace("%S", "\\d*");
@@ -139,9 +138,9 @@ namespace Renamer
         /// <param name="source">source files</param>
         /// <param name="Basepath">base path to look for</param>
         /// <returns>a list of matches</returns>
-        public static List<InfoEntry> FindSimilarByPath(List<InfoEntry> source, string Basepath) {
-            List<InfoEntry> matches = new List<InfoEntry>();
-            foreach (InfoEntry ie in source) {
+        public static List<Candidate> FindSimilarByPath(List<Candidate> source, string Basepath) {
+            List<Candidate> matches = new List<Candidate>();
+            foreach (Candidate ie in source) {
                 if (ie.FilePath.Path.StartsWith(Basepath)) {
                     matches.Add(ie);
                 }
@@ -220,9 +219,9 @@ namespace Renamer
                 }
                 string value = "";
                 foreach (string s in ((string[])variable)) {
-                    value += (toLower? s.ToLower():s) + ConfigFile.Delimiter;
+                    value += (toLower? s.ToLower():s) + ConfigFile.delimiter;
                 }
-                return value.Substring(0, value.Length - ConfigFile.Delimiter.Length);
+                return value.Substring(0, value.Length - ConfigFile.delimiter.Length);
             }
             return (toLower ? ((string)variable).ToLower() : ((string)variable));
         }
@@ -251,7 +250,7 @@ namespace Renamer
         /// <summary>
         /// reads a property from cache or from a file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="FilePath">Path of the config file</param>
         /// <returns>value of the property, or null</returns>
         public static string ReadProperty(string Identifier, string FilePath) {
@@ -260,7 +259,7 @@ namespace Renamer
         /// <summary>
         /// reads a property from cache or from a file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="FilePath">Path of the config file</param>
         /// <returns>value of the property, or null</returns>
         public static string ReadProperty(string Identifier, bool toLower, string FilePath) {
@@ -276,7 +275,7 @@ namespace Renamer
         /// <summary>
         /// reads a property from main config cache/file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <returns>value of the property, or null</returns>
         public static string ReadProperty(string Identifier) {
             return ReadProperty(Identifier, false, DefaultConfigFile());
@@ -285,7 +284,7 @@ namespace Renamer
         /// <summary>
         /// reads a property from main config cache/file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <returns>value of the property, or null</returns>
         public static string ReadProperty(string Identifier, bool toLower) {
             return ReadProperty(Identifier, toLower, DefaultConfigFile());
@@ -296,13 +295,13 @@ namespace Renamer
         /// </summary>
         /// <returns>path to the configuration file</returns>
         public static string DefaultConfigFile() {
-            return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + Path.DirectorySeparatorChar + Settings.MainConfigFileName;
+            return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + Path.DirectorySeparatorChar + Settings.MAIN_CONFIG_FILENAME;
         }
 
         /// <summary>
         /// reads a property that consists of more than one value from a file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="FilePath">Path of the config file</param>
         /// <returns>string[] Array containing values, or null</returns>
         public static string[] ReadProperties(string Identifier, bool toLower, string FilePath) {
@@ -317,7 +316,7 @@ namespace Renamer
         /// <summary>
         /// reads a property that consists of more than one value from a file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="FilePath">Path of the config file</param>
         /// <returns>string[] Array containing values, or null</returns>
         public static string[] ReadProperties(string Identifier, string FilePath) {
@@ -327,7 +326,7 @@ namespace Renamer
         /// <summary>
         /// reads a property that consists of more than one value from default config file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <returns>string[] Array containing values, or null</returns>
         public static string[] ReadProperties(string Identifier) {
             return ReadProperties(Identifier, false, DefaultConfigFile());
@@ -336,7 +335,7 @@ namespace Renamer
         /// <summary>
         /// reads a property that consists of more than one value from default config file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <returns>string[] Array containing values, or null</returns>
         public static string[] ReadProperties(string Identifier, bool toLower) {
             return ReadProperties(Identifier, toLower, DefaultConfigFile());
@@ -345,7 +344,7 @@ namespace Renamer
         /// <summary>
         /// writes a property to the cache
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="Value">Value to write</param>
         /// <param name="FilePath">Path of the config file</param>
         public static void WriteProperty(string Identifier, string Value, string FilePath) {
@@ -361,7 +360,7 @@ namespace Renamer
         /// <summary>
         /// writes a property to the main config cache
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="Value">Value to write</param>
         public static void WriteProperty(string Identifier, string Value) {
             WriteProperty(Identifier, Value, DefaultConfigFile());
@@ -370,7 +369,7 @@ namespace Renamer
         /// <summary>
         /// writes a property with more than one Value to a file,
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="Value">string[] containing values to write</param>
         /// <param name="FilePath">Path of the config file</param>
         public static void WriteProperties(string Identifier, string[] Value, string FilePath) {
@@ -386,7 +385,7 @@ namespace Renamer
         /// <summary>
         /// writes a property with more than one Value to default config file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="Value">string[] containing values to write</param>
         public static void WriteProperties(string Identifier, string[] Value) {
             WriteProperties(Identifier, Value, DefaultConfigFile());
@@ -396,7 +395,7 @@ namespace Renamer
         /// <summary>
         /// writes a property with more than one Value to default config file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="Value">delimiter separated string of values</param>
         public static void WriteProperties(string Identifier, string Value) {
             WriteProperties(Identifier, Value, DefaultConfigFile());
@@ -405,11 +404,11 @@ namespace Renamer
         /// <summary>
         /// writes a property with more than one Value to config file
         /// </summary>
-        /// <param name="Identifier">Name of the property</param>
+        /// <param name="Identifier">PROVIDER_NAME_KEY of the property</param>
         /// <param name="Value">delimiter separated string of values</param>
         /// /// <param name="FilePath">Path of the config file</param>
         public static void WriteProperties(string Identifier, string Value, string FilePath) {
-            WriteProperties(Identifier, Value.Split(new string[] { Helper.ReadProperty(Config.Delimiter) }, StringSplitOptions.RemoveEmptyEntries), FilePath);
+            WriteProperties(Identifier, Value.Split(new string[] { Helper.ReadProperty(ConfigKeyConstants.DELIMITER_KEY) }, StringSplitOptions.RemoveEmptyEntries), FilePath);
         }
 
         public static void WriteBool(string Identifier, bool value)
@@ -425,7 +424,7 @@ namespace Renamer
         }
 
         /// <summary>
-        /// gets all files recursively from subdirectories using MaxDepth property
+        /// gets all files recursively from subdirectories using MAX_SEARCH_DEPTH_KEY property
         /// </summary>
         /// <param name="directory">root folder</param>
         /// <param name="pattern">Pattern for file matching, "*" for all</param>
@@ -438,7 +437,7 @@ namespace Renamer
         /// <summary>
         /// internal recursive function for getting subdirectories
         /// </summary>
-        /// <param name="dir">current recursive root folder</param>
+        /// <param name="dirArgument">current recursive root folder</param>
         /// <param name="pattern">Pattern for file matching, "*" for all</param>
         /// <param name="depth">Current recursive depth for cancelling recursion</param>
         /// <param name="count">Total count of all listed files</param>
@@ -463,7 +462,7 @@ namespace Renamer
                 }
             }
             List<FileSystemInfo> all = new List<FileSystemInfo>(dir.GetFileSystemInfos());
-            if (depth >= Convert.ToInt32(Helper.ReadProperty(Config.MaxDepth))) return files;
+            if (depth >= Convert.ToInt32(Helper.ReadProperty(ConfigKeyConstants.MAX_SEARCH_DEPTH_KEY))) return files;
             foreach (FileSystemInfo f in all) {
                 if (f is DirectoryInfo)
                 {

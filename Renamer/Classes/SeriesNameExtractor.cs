@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.Text.RegularExpressions;
 using System.IO;
 
@@ -18,7 +18,7 @@ namespace Renamer.Classes
         private string filenameBlacklist;
         private string name;
         private bool filenameBlacklisted;
-        private InfoEntry ie;
+        private Candidate ie;
         private static SeriesNameExtractor instance = null;
         private static object m_lock = new object();
 
@@ -33,23 +33,23 @@ namespace Renamer.Classes
 
         private SeriesNameExtractor()
         {
-            string[] tags = Helper.ReadProperties(Config.Tags);  
+            string[] tags = Helper.ReadProperties(ConfigKeyConstants.MOVIES_TAGS_TO_REMOVE_LIST_KEY);  
             List<string> MovieRegexes = new List<string>();
             foreach (string s in tags)
             {
                 MovieRegexes.Add("[^A-Za-z0-9]+" + s);
             }
             MovieTagPatterns = MovieRegexes.ToArray();
-            string[] blacklist = Helper.ReadProperties(Config.PathBlacklist);
+            string[] blacklist = Helper.ReadProperties(ConfigKeyConstants.SHOWNAME_PATH_WORD_BLACKLIST_KEY);
             pathBlacklist = String.Join("|", blacklist);
-            blacklist = Helper.ReadProperties(Config.FilenameBlacklist);
+            blacklist = Helper.ReadProperties(ConfigKeyConstants.SHOWNAME_FILENAME_BLACKLIST_KEY);
             filenameBlacklist = String.Join("|", blacklist);
-            extractPatterns = (string[])Helper.ReadProperties(Config.Extract);
+            extractPatterns = (string[])Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY);
             for (int index = 0; index < extractPatterns.Length; index++) {
                 extractPatterns[index] = transformPlaceholderToRegex(extractPatterns[index]);
             }
             filenameBlacklisted = false;
-            shownamePatterns = Helper.ReadProperties(Config.ShownameExtractionRegex);
+            shownamePatterns = Helper.ReadProperties(ConfigKeyConstants.REGEX_EXTRACT_SHOWNAME_FROM_FOLDER_KEY);
         }
 
         private void reset() {
@@ -86,7 +86,7 @@ namespace Renamer.Classes
             foreach (string pattern in extractPatterns) {
                 m = Regex.Match(folders[folders.Length - 1], pattern, RegexOptions.IgnoreCase);
                 if (m.Success && pattern.Contains("(?<pos>.*?)") && m.Groups["pos"].Value != "") {
-                    //yes we use filename so we can check against a top level dir
+                    //yes we use configurationFilePath so we can check against a top level dirArgument
                     name = m.Groups["pos"].Value;
                 }
                 else if (m.Success) {
@@ -114,9 +114,9 @@ namespace Renamer.Classes
             if (seriesNameFromDirectory == false) {
                 Match m;
                 foreach (string pattern in shownamePatterns) {
-                    //from filename
+                    //from configurationFilePath
                     m = Regex.Match(str, pattern, RegexOptions.IgnoreCase);
-                    if (m.Success) // && filename.Length != matchedname.Length + m.Groups["pos"].Value.Length)
+                    if (m.Success) // && configurationFilePath.Length != matchedname.Length + m.Groups["pos"].Value.Length)
                     {
                         //try to use the part of the name that goes from 0 to pos as showname
                         string matchedname = str.Substring(0, m.Groups["pos"].Index);
@@ -159,10 +159,10 @@ namespace Renamer.Classes
         }
 
         
-        public string ExtractSeriesName(InfoEntry ie) {
+        public string ExtractSeriesName(Candidate ie) {
             reset();
             this.ie = ie;
-            // Read plain filename
+            // Read plain configurationFilePath
             string filename = System.IO.Path.GetFileNameWithoutExtension(ie.Filename);            
             filename = NameCleanup.RemoveReleaseGroupTag(filename);
             folders = Filepath.extractFoldernamesFromPath(ie.FilePath.Path);
@@ -192,7 +192,7 @@ namespace Renamer.Classes
         /// <param name="path">path from which to extract the data (NO FILEPATH, JUST FOLDER)</param>
         /// <returns>recognized season, -1 if not recognized</returns>
         public int ExtractSeasonFromDirectory(string path) {
-            string[] patterns = Helper.ReadProperties(Config.Extract);
+            string[] patterns = Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY);
             string[] folders = path.Split(new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = patterns.Length - 1; i >= 0; i--) {
                 string pattern = RegexConverter.toRegex(patterns[i]);

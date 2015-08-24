@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Renamer.Logging;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.IO;
 using Schematrix;
 using ICSharpCode.SharpZipLib.Zip;
@@ -53,7 +53,7 @@ namespace Renamer.Classes
                 // Open archive for extraction
                 unrar.Open(filename, Unrar.OpenMode.Extract);
 
-                // Extract each file with subtitle extension
+                // SEASON_NR_EXTRACTION_PATTERNS_KEY each file with subtitle extension
                 while (unrar.ReadHeader()) {
 
                     string extension = Path.GetExtension(unrar.CurrentFile.FileName).Substring(1).ToLower().Replace(".", "");
@@ -85,7 +85,7 @@ namespace Renamer.Classes
                     string extension = Path.GetExtension(theEntry.Name);
                     extension = extension.Substring(Math.Min(extension.Length, 1)).ToLower().Replace(".", "");
 
-                    //put it all in one dir!   
+                    //put it all in one dirArgument!   
                     if (String.IsNullOrEmpty(fileName) || !extensions.Contains(extension)) {
                         continue;
                     }
@@ -123,17 +123,17 @@ namespace Renamer.Classes
         }
 
         private int DownloadSubtitles() {
-            //find empty temp dir
+            //find empty temp dirArgument
             int i = 0;
             string folder = Path.DirectorySeparatorChar + "TEMP" + i.ToString();
-            while (Directory.Exists(Helper.ReadProperty(Config.LastDirectory) + folder)) {
+            while (Directory.Exists(Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY) + folder)) {
                 i++;
                 folder = Path.DirectorySeparatorChar + "TEMP" + i.ToString();
             }
-            Directory.CreateDirectory(Helper.ReadProperty(Config.LastDirectory) + folder);
+            Directory.CreateDirectory(Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY) + folder);
             foreach (string url in this.subtitleLinks) {
                 WebClient Client = new WebClient();
-                string target = Helper.ReadProperty(Config.LastDirectory) + folder + Path.DirectorySeparatorChar + Path.GetFileName(url);
+                string target = Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY) + folder + Path.DirectorySeparatorChar + Path.GetFileName(url);
                 Client.DownloadFile(url, target);
             }
             return i;
@@ -142,10 +142,10 @@ namespace Renamer.Classes
         /// <summary>
         /// Extracts all downloaded archives and moves subtitles to the movie files with proper naming
         /// </summary>
-        /// <param name="i">Index of the temporary directory in which subtitles are stored. Temp Directory Name is "TEMP"+i</param>
+        /// <param name="i">Index of the temporary directory in which subtitles are stored. Temp Directory PROVIDER_NAME_KEY is "TEMP"+i</param>
         public void ProcessSubtitles(int i) {
-            string folder = Helper.ReadProperty(Config.LastDirectory) + "TEMP" + i.ToString();
-            List<string> extensions = new List<string>(Helper.ReadProperties(Config.SubtitleExtensions, true));
+            string folder = Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY) + "TEMP" + i.ToString();
+            List<string> extensions = new List<string>(Helper.ReadProperties(ConfigKeyConstants.SUBTITLE_FILE_EXTENSIONS_KEY, true));
             if (extensions == null) {
                 Logger.Instance.LogMessage("No Subtitle Extensions found!", LogLevel.WARNING);
                 return;
@@ -164,7 +164,7 @@ namespace Renamer.Classes
                     List<FileSystemInfo> fsi = Helper.GetAllFilesRecursively(folder, "*." + ex, ref count, null);
                     Files.AddRange(fsi);
                 }
-                string[] patterns = Helper.ReadProperties(Config.EpIdentifier);
+                string[] patterns = Helper.ReadProperties(ConfigKeyConstants.EPISODE_IDENTIFIER_PATTERNS_KEY);
                 foreach (FileSystemInfo file in Files) {
                     int Season = -1;
                     int Episode = -1;
@@ -190,7 +190,7 @@ namespace Renamer.Classes
                         }
                     }
 
-                    //now that season and episode are known, assign the filename to a SubtitleFile object
+                    //now that season and episode are known, assign the configurationFilePath to a SubtitleFile object
                     bool contains = false;
                     foreach (SubtitleFile s in this.subtitles) {
                         if (Season != -1 && Episode != -1 && s.Episode == Episode && s.Season == Season) {
@@ -208,8 +208,8 @@ namespace Renamer.Classes
                 }
                 int MatchedSubtitles = 0;
                 //Move subtitle files to their video files
-                foreach (InfoEntry ie in InfoEntryManager.Instance) {
-                    List<string> ext = new List<string>(Helper.ReadProperties(Config.Extensions));
+                foreach (Candidate ie in CandidateManager.Instance) {
+                    List<string> ext = new List<string>(Helper.ReadProperties(ConfigKeyConstants.VIDEO_FILE_EXTENSIONS_KEY));
                     for (int b = 0; b < ext.Count; b++) {
                         ext[b] = ext[b].ToLower();
                     }
@@ -256,7 +256,7 @@ namespace Renamer.Classes
                 //cleanup
                 this.subtitles.Clear();
                 Directory.Delete(folder, true);
-                //UpdateList(true);
+                //updateCandidateFiles(true);
             }
         }
 

@@ -52,7 +52,7 @@ namespace Renamer.Dialogs
         /// </summary>
         Provider P = null;
 
-        //Language which might be extracted from the show title
+        //LANGUAGE_KEY which might be extracted from the show title
         public Helper.Languages Language = Helper.Languages.None;
 
         /// <summary>

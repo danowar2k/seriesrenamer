@@ -6,7 +6,7 @@ using System.IO;
 namespace Renamer.Logging
 {
     /// <summary>
-    /// Logger which can log to a file, specified by a filename;
+    /// Logger which can log to a file, specified by a configurationFilePath;
     /// </summary>
     public class FileLogger : AbstractLogger
     {

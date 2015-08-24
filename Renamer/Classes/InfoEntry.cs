@@ -15,7 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Data;
@@ -29,7 +29,7 @@ namespace Renamer.Classes
     /// <summary>
     /// Contains all information about a single video or subtitle file, including scheduled renaming info
     /// </summary>
-    public class InfoEntry
+    public class Candidate
     {
 
         #region Enumerations
@@ -98,7 +98,7 @@ namespace Renamer.Classes
             set { destination.Path = value; }
         }
         /// <summary>
-        /// new filename with extension
+        /// new configurationFilePath with extension
         /// </summary>
         public string NewFilename {
             get {
@@ -124,7 +124,7 @@ namespace Renamer.Classes
         }
 
         /// <summary>
-        /// Old filename with extension
+        /// Old configurationFilePath with extension
         /// </summary>
         public string Filename {
             get { return source.Filename; }
@@ -166,7 +166,7 @@ namespace Renamer.Classes
             }
         }
         /// <summary>
-        /// Name of the show this file belongs to.
+        /// PROVIDER_NAME_KEY of the show this file belongs to.
         /// </summary>
         public string Showname {
             get { return nameOfSeries; }
@@ -174,7 +174,7 @@ namespace Renamer.Classes
                 if (value == NotRecognized) value = "";
                 if (nameOfSeries != value) {
                     if (value == null) value = "";
-                    if (value == "Sample" && Helper.ReadBool(Config.DeleteSampleFiles))
+                    if (value == "Sample" && Helper.ReadBool(ConfigKeyConstants.DELETE_SAMPLE_FILES_KEY))
                     {
                         MarkedForDeletion = true;
                     }
@@ -184,7 +184,7 @@ namespace Renamer.Classes
                     {
                         SetupRelation();
                     }
-                    //filename might contain showname, so it needs to be updated anyway
+                    //configurationFilePath might contain showname, so it needs to be updated anyway
                     CreateNewName();
                     //directory structure also contains showname and should be updated
                     SetPath();
@@ -285,7 +285,7 @@ namespace Renamer.Classes
         }
 
         /// <summary>
-        /// from which level in the directory structure the name was extracted, 0=filename, 1=name file is in, 2= parent of 1, etc
+        /// from which level in the directory structure the name was extracted, 0=configurationFilePath, 1=name file is in, 2= parent of 1, etc
         /// </summary>
         public int ExtractedNameLevel
         {
@@ -345,7 +345,7 @@ namespace Renamer.Classes
         {
             get {
                 if (string.IsNullOrEmpty(FilePath.Path)) return false;
-                string[] patterns = Helper.ReadProperties(Config.Extract);
+                string[] patterns = Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY);
                 foreach(string pattern in patterns){
                     if(Regex.IsMatch(FilePath.Path,pattern))
                         return true;
@@ -390,7 +390,7 @@ namespace Renamer.Classes
 
 
         /// <summary>
-        /// Extracts the showname of the filename
+        /// Extracts the showname of the configurationFilePath
         /// </summary>
         private void ExtractName() {
             if (!source.isEmpty) {
@@ -413,8 +413,8 @@ namespace Renamer.Classes
         /// set Properties depending on the Extension of the file
         /// </summary>
         private void CheckExtension() {
-            this.isVideofile = (new List<string>(Helper.ReadProperties(Config.Extensions, true))).Contains(this.source.Extension);
-            this.isSubtitle = (new List<string>(Helper.ReadProperties(Config.SubtitleExtensions, true))).Contains(this.source.Extension);
+            this.isVideofile = (new List<string>(Helper.ReadProperties(ConfigKeyConstants.VIDEO_FILE_EXTENSIONS_KEY, true))).Contains(this.source.Extension);
+            this.isSubtitle = (new List<string>(Helper.ReadProperties(ConfigKeyConstants.SUBTITLE_FILE_EXTENSIONS_KEY, true))).Contains(this.source.Extension);
         }
 
 
@@ -425,7 +425,7 @@ namespace Renamer.Classes
                 Destination = "";
                 return;
             }
-            string DestinationPath = Helper.ReadProperty(Config.DestinationDirectory);
+            string DestinationPath = Helper.ReadProperty(ConfigKeyConstants.DESTINATION_DIRECTORY_KEY);
 
             if (!Directory.Exists(DestinationPath))
             {
@@ -470,8 +470,8 @@ namespace Renamer.Classes
                 Destination = "";
                 return;
             }
-            //string basepath = Helper.ReadProperty(Config.LastDirectory);
-            string DestinationPath = Helper.ReadProperty(Config.DestinationDirectory);
+            //string basepath = Helper.ReadProperty(ConfigKeyConstants.LAST_DIRECTORY_KEY);
+            string DestinationPath = Helper.ReadProperty(ConfigKeyConstants.DESTINATION_DIRECTORY_KEY);
            
             if (!Directory.Exists(DestinationPath))
             {
@@ -483,15 +483,15 @@ namespace Renamer.Classes
             string[] dirs = this.source.Folders;
             bool InSeriesDir = false;
             bool InSeasonDir = false;
-            //any (other) season dir
+            //any (other) season dirArgument
             bool InASeasonDir = false;
-            bool UseSeasonSubDirs = Helper.ReadBool(Config.UseSeasonSubDir);
-            //figure out if we are in a season dir
-            string[] seasondirs = Helper.ReadProperties(Config.Extract);
+            bool UseSeasonSubDirs = Helper.ReadBool(ConfigKeyConstants.CREATE_SEASON_SUBFOLDERS_KEY);
+            //figure out if we are in a season dirArgument
+            string[] seasondirs = Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY);
             string aSeasondir = "";
             int showdirlevel = 0;
 
-            //figure out if we are in an extraction dir, if we are, we need to go upwards one level
+            //figure out if we are in an extraction dirArgument, if we are, we need to go upwards one level
             if (dirs.Length > 0 &&Filepath.IsExtractionDirectory(dirs[dirs.Length-1]))
             {
                 DestinationPath = Filepath.goUpwards(DestinationPath, 1);
@@ -522,14 +522,14 @@ namespace Renamer.Classes
                 }
 
                 //remove dots to avoid problems with series like "N.C.I.S." or "Dr. House"
-                /*if (dirs.Length > 0 && dirs[dirs.Length - 1].Replace(".","").StartsWith(nameOfSeries.Replace(".",""))){
+                /*if (dirs.Length > 0 && dirs[dirs.Length - 1].CUSTOM_REPLACE_REGEX_STRINGS_KEY(".","").StartsWith(nameOfSeries.CUSTOM_REPLACE_REGEX_STRINGS_KEY(".",""))){
                     InSeriesDir=true;
                 }*/
                 if (dirs.Length > 0 && Helper.InitialsMatch(dirs[dirs.Length - 1], nameOfSeries))
                 {
                     InSeriesDir = true;
                 }
-                /*else if (dirs.Length > 1 && dirs[dirs.Length - 2].Replace(".", "").StartsWith(nameOfSeries.Replace(".", "")))*/
+                /*else if (dirs.Length > 1 && dirs[dirs.Length - 2].CUSTOM_REPLACE_REGEX_STRINGS_KEY(".", "").StartsWith(nameOfSeries.CUSTOM_REPLACE_REGEX_STRINGS_KEY(".", "")))*/
                 else if (dirs.Length > 1 && Helper.InitialsMatch(dirs[dirs.Length - 2], nameOfSeries))
                 {
                     InSeriesDir = true;
@@ -546,18 +546,18 @@ namespace Renamer.Classes
             //if files aren't meant to be moved somewhere else
             if (!DifferentDestinationPath)
             {                
-                //somewhere else, create new series dir
+                //somewhere else, create new series dirArgument
                 if (!InSeriesDir && !InSeasonDir &&!InASeasonDir)
                 {
                     DestinationPath = addSeriesDir(DestinationPath);
                     DestinationPath = addSeasonsDirIfDesired(DestinationPath);
                 }
-                //in series dir, create seasons dir
+                //in series dirArgument, create seasons dirArgument
                 else if (InSeriesDir&&!InASeasonDir)
                 {
                     DestinationPath = addSeasonsDirIfDesired(DestinationPath);
                 }
-                //wrong season dir, add real seasons dir
+                //wrong season dirArgument, add real seasons dirArgument
                 else if (InSeriesDir && InASeasonDir &&!InSeasonDir)
                 {
                     DestinationPath = Filepath.goUpwards(DestinationPath, 1);
@@ -567,7 +567,7 @@ namespace Renamer.Classes
                     }
                     DestinationPath = addSeasonsDirIfDesired(DestinationPath);
                 }
-                //wrong show dir, go back two levels and add proper dir structure
+                //wrong show dirArgument, go back two levels and add proper dirArgument structure
                 else if (!InSeriesDir && InASeasonDir)
                 {
                     DestinationPath = addSeriesDir(Filepath.goUpwards(DestinationPath, 2));
@@ -595,7 +595,7 @@ namespace Renamer.Classes
             loadSettingCreateDirectory();
         }
         private void loadSettingCreateDirectory() {
-            createDirectoryStructure = (Helper.ReadBool(Config.CreateDirectoryStructure)) ? DirectoryStructure.CreateDirectoryStructure : DirectoryStructure.NoDirectoryStructure;
+            createDirectoryStructure = (Helper.ReadBool(ConfigKeyConstants.CREATE_DIRECTORY_STRUCTURE_KEY)) ? DirectoryStructure.CreateDirectoryStructure : DirectoryStructure.NoDirectoryStructure;
         }
      
         private bool isSeasonValid() {
@@ -612,8 +612,8 @@ namespace Renamer.Classes
             if (useSeasonSubDirs())
             {
                 string[] dirs = path.Split(new char[] { Path.DirectorySeparatorChar });
-                //figure out if we are in a season dir
-                string[] seasondirs = Helper.ReadProperties(Config.Extract);
+                //figure out if we are in a season dirArgument
+                string[] seasondirs = Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY);
                 string aSeasondir = "";
                 
                 if (Directory.Exists(path))
@@ -641,18 +641,18 @@ namespace Renamer.Classes
         }
  
         private bool useSeasonSubDirs() {
-            return Helper.ReadBool(Config.UseSeasonSubDir);
+            return Helper.ReadBool(ConfigKeyConstants.CREATE_SEASON_SUBFOLDERS_KEY);
         }
 
         private string seasonsSubDir() {
-            string seasondir = RegexConverter.replaceSeriesnameAndSeason(Helper.ReadProperties(Config.Extract)[0], nameOfSeries, season);
+            string seasondir = RegexConverter.replaceSeriesnameAndSeason(Helper.ReadProperties(ConfigKeyConstants.SEASON_NR_EXTRACTION_PATTERNS_KEY)[0], nameOfSeries, season);
             return System.IO.Path.DirectorySeparatorChar + seasondir;
         }
 
 
         #endregion
         #region public Methods
-        public InfoEntry() {
+        public Candidate() {
             initMembers();
         }
 
@@ -675,34 +675,34 @@ namespace Renamer.Classes
         /// This function tries to find an episode name which matches the showname, episode and season number by looking at previously downloaded relations
         /// </summary>
         public void SetupRelation() {
-            findEpisodeName(RelationManager.Instance.GetRelationCollection(this.Showname));
+            findEpisodeName(TitleManager.Instance.GetTitleCollection(this.Showname));
         }
 
-        public void findEpisodeName(RelationCollection rc) {
+        public void findEpisodeName(TitleCollection rc) {
             resetName();
             if (rc == null)
                 return;
 
             for (int i = 0; i < rc.Count; i++) {
                 if (isValidRelation(rc[i])) {
-                    Name = rc[i].Name;
+                    Name = rc[i].EpisodeTitle;
                     break;
                 }
                 if (isInValidSeason(rc[i]) || isInValidEpisode(rc[i]))
-                    Name = rc[i].Name;
+                    Name = rc[i].EpisodeTitle;
             }
         }
 
-        private bool isValidRelation(Relation relation) {
-            return relation.Season == season && relation.Episode == episode;
+        private bool isValidRelation(EpisodeData relation) {
+            return relation.SeasonNr == season && relation.SeasonEpisodeNr == episode;
         }
 
-        private bool isInValidEpisode(Relation relation) {
-            return relation.Season == season && episode == -1;
+        private bool isInValidEpisode(EpisodeData relation) {
+            return relation.SeasonNr == season && episode == -1;
         }
 
-        private bool isInValidSeason(Relation relation) {
-            return relation.Episode == episode && season == -1;
+        private bool isInValidSeason(EpisodeData relation) {
+            return relation.SeasonEpisodeNr == episode && season == -1;
         }
 
         private void resetName() {
@@ -728,7 +728,7 @@ namespace Renamer.Classes
         private UmlautAction readUmlautUsage() {
             UmlautAction ua = umlautUsage;
             if (ua == UmlautAction.Unset) {
-                ua = Helper.ReadEnum<UmlautAction>(Config.Umlaute);
+                ua = Helper.ReadEnum<UmlautAction>(ConfigKeyConstants.DIACRITIC_STRATEGY_KEY);
                 if (ua == UmlautAction.Unset)
                     ua = UmlautAction.Ignore;
             }
@@ -737,7 +737,7 @@ namespace Renamer.Classes
 
         private string adjustCasing(string input, bool extension) {
             if (casing == Case.Unset) {
-                casing = Helper.ReadEnum<Case>(Config.Case);
+                casing = Helper.ReadEnum<Case>(ConfigKeyConstants.LETTER_CASE_STRATEGY_KEY);
                 if (casing == Case.Unset)
                     casing = Case.Ignore;
             }
@@ -778,7 +778,7 @@ namespace Renamer.Classes
      
         
         /// <summary>
-        /// This function generates a new filename from the Target Pattern, episode, season, title, showname,... values
+        /// This function generates a new configurationFilePath from the Target Pattern, episode, season, title, showname,... values
         /// </summary>
         public void CreateNewName() {
             if ((Movie && Showname =="") || (!Movie && !isSubtitle && nameOfEpisode == "")) {
@@ -791,7 +791,7 @@ namespace Renamer.Classes
                 {
                     if (nameOfEpisode == "" && Season > -1 && Episode > -1)
                     {
-                        InfoEntry videoEntry = InfoEntryManager.Instance.GetMatchingVideo(Showname, Season, Episode);
+                        Candidate videoEntry = CandidateManager.Instance.GetMatchingVideo(Showname, Season, Episode);
                         if (videoEntry != null)
                         {
                             string nfn, dst;
@@ -841,7 +841,7 @@ namespace Renamer.Classes
                 string extension = Extension;
 
                 if (!isMovie) {
-                    tmpname = Helper.ReadProperty(Config.TargetPattern);
+                    tmpname = Helper.ReadProperty(ConfigKeyConstants.TARGET_FILENAME_PATTERN_KEY);
                     tmpname = tmpname.Replace("%e", episode.ToString());
                     tmpname = tmpname.Replace("%E", episode.ToString("00"));
                     tmpname = tmpname.Replace("%s", season.ToString());
@@ -856,9 +856,9 @@ namespace Renamer.Classes
                 adjustSpelling(ref seriesname, false);
                 adjustSpelling(ref extension, true);
 
-                //Now that series title, episode title and extension are properly processed, add them to the filename
+                //Now that series title, episode title and extension are properly processed, add them to the configurationFilePath
 
-                //Remove extension from target filename (if existant) and add properly cased one
+                //Remove extension from target configurationFilePath (if existant) and add properly cased one
                 tmpname = Regex.Replace(tmpname, "\\." + extension, "", RegexOptions.IgnoreCase);
                 tmpname += "." + extension;
 
@@ -866,11 +866,11 @@ namespace Renamer.Classes
                 tmpname = tmpname.Replace("%N", epname);
 
                 //string replace function
-                List<string> replace = new List<string>(Helper.ReadProperties(Config.Replace));
+                List<string> replace = new List<string>(Helper.ReadProperties(ConfigKeyConstants.CUSTOM_REPLACE_REGEX_STRINGS_KEY));
                 List<string> from = new List<string>();
                 List<string> to = new List<string>();
                 foreach (string s in replace) {
-                    if (!s.StartsWith(Settings.Instance.Comment)) {
+                    if (!s.StartsWith(Settings.COMMENT)) {
                         string[] replacement = s.Split(new string[] { "->" }, StringSplitOptions.RemoveEmptyEntries);
                         if (replacement != null && replacement.Length == 2) {
                             tmpname = Regex.Replace(tmpname, replacement[0], replacement[1], RegexOptions.IgnoreCase);
@@ -878,7 +878,7 @@ namespace Renamer.Classes
                     }
                 }
 
-                //set new filename if renaming process is required
+                //set new configurationFilePath if renaming process is required
                 if (Filename == tmpname) {
                     NewFilename = "";
                 }
@@ -971,7 +971,7 @@ namespace Renamer.Classes
                         }
                         else
                         {                            
-                            FileRoutines.CopyFile(new FileInfo(src), new FileInfo(target), CopyFileOptions.AllowDecryptedDestination | CopyFileOptions.FailIfDestinationExists, new CopyFileCallback(InfoEntryManager.Instance.ReportSingleFileProgress));
+                            FileRoutines.CopyFile(new FileInfo(src), new FileInfo(target), CopyFileOptions.AllowDecryptedDestination | CopyFileOptions.FailIfDestinationExists, new CopyFileCallback(CandidateManager.Instance.ReportSingleFileProgress));
                             if (worker.CancellationPending)
                             {
                                 return;

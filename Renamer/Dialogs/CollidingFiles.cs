@@ -12,8 +12,8 @@ namespace Renamer.Dialogs
 {
     public partial class CollidingFiles : Form
     {
-        InfoEntry ie1, ie2;
-        public CollidingFiles(InfoEntry ie1, InfoEntry ie2)
+        Candidate ie1, ie2;
+        public CollidingFiles(Candidate ie1, Candidate ie2)
         {
             InitializeComponent();
             this.ie1 = ie1;

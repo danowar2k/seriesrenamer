@@ -82,11 +82,11 @@ namespace Renamer.Dialogs
 		{
 			get
 			{
-				return AppTitleLabel.Text;
+				return lblApplicationTitle.Text;
 			}
 			set
 			{
-				AppTitleLabel.Text = value;
+				lblApplicationTitle.Text = value;
 			}
 		}
 
@@ -101,15 +101,15 @@ namespace Renamer.Dialogs
 		{
 			get
 			{
-				return AppDescriptionLabel.Text;
+				return lblApplicationDescription.Text;
 			}
 			set
 			{
 				if (value == ""){
-					AppDescriptionLabel.Visible = false;
+					lblApplicationDescription.Visible = false;
 				}else{
-					AppDescriptionLabel.Visible = true;
-					AppDescriptionLabel.Text = value;
+					lblApplicationDescription.Visible = true;
+					lblApplicationDescription.Text = value;
 				}
 			}
 		}
@@ -124,14 +124,14 @@ namespace Renamer.Dialogs
 		public string AppVersion
 		{
 			get{
-				return AppVersionLabel.Text;
+				return lblApplicationVersion.Text;
 			}
 			set{
 				if (value == ""){
-					AppVersionLabel.Visible = false;
+					lblApplicationVersion.Visible = false;
 				}else{
-					AppVersionLabel.Visible = true;
-					AppVersionLabel.Text = value;
+					lblApplicationVersion.Visible = true;
+					lblApplicationVersion.Text = value;
 				}
 			}
 		}
@@ -147,14 +147,14 @@ namespace Renamer.Dialogs
 		public string AppCopyright
 		{
 			get{
-				return AppCopyrightLabel.Text;
+				return lblApplicationCopyright.Text;
 			}
 			set{
 				if (value == ""){
-					AppCopyrightLabel.Visible = false;
+					lblApplicationCopyright.Visible = false;
 				}else{
-					AppCopyrightLabel.Visible = true;
-					AppCopyrightLabel.Text = value;
+					lblApplicationCopyright.Visible = true;
+					lblApplicationCopyright.Text = value;
 				}
 			}
 		}
@@ -168,10 +168,10 @@ namespace Renamer.Dialogs
 		public Image AppImage
 		{
 			get{
-				return ImagePictureBox.Image;
+				return picApplicationIcon.Image;
 			}
 			set{
-				ImagePictureBox.Image = value;
+				picApplicationIcon.Image = value;
 			}
 		}
 
@@ -187,14 +187,14 @@ namespace Renamer.Dialogs
 		public string AppMoreInfo
 		{
 			get{
-				return MoreRichTextBox.Text;
+				return txtAdditionalDescription.Text;
 			}
 			set{
 				if (value == null || value == ""){
-					MoreRichTextBox.Visible = false;
+					txtAdditionalDescription.Visible = false;
 				}else{
-					MoreRichTextBox.Visible = true;
-					MoreRichTextBox.Text = value;
+					txtAdditionalDescription.Visible = true;
+					txtAdditionalDescription.Text = value;
 				}
 			}
 		}
@@ -205,10 +205,10 @@ namespace Renamer.Dialogs
 		public bool AppDetailsButton
 		{
 			get{
-				return DetailsButton.Visible;
+				return btnShowDetails.Visible;
 			}
 			set{
-				DetailsButton.Visible = value;
+				btnShowDetails.Visible = value;
 			}
 		}
 
@@ -269,7 +269,7 @@ namespace Renamer.Dialogs
 		// Copyright       = AssemblyCopyright string
 		// Company         = AssemblyCompany string
 		// Description     = AssemblyDescription string
-		// Title           = AssemblyTitle string
+		// EPISODE_TITLE           = AssemblyTitle string
 		// </remarks>
 		private NameValueCollection AssemblyAttribs(Assembly a)
 		{
@@ -358,7 +358,7 @@ namespace Renamer.Dialogs
 			}else{
 				nvc.Add("BuildDate", dt.ToString("yyyy-MM-dd hh:mm tt"));
 			}
-			// location
+			// subPath
 			try{
 				nvc.Add("Location", a.Location);
 			}catch(NotSupportedException){
@@ -446,19 +446,19 @@ namespace Renamer.Dialogs
 		private void PopulateAppInfo()
 		{
 			AppDomain d = System.AppDomain.CurrentDomain;
-			Populate(AppInfoListView, "Application Name", d.SetupInformation.ApplicationName);
-			Populate(AppInfoListView, "Application Base", d.SetupInformation.ApplicationBase);
-			Populate(AppInfoListView, "Cache Path", d.SetupInformation.CachePath);
-			Populate(AppInfoListView, "Configuration File", d.SetupInformation.ConfigurationFile);
-			Populate(AppInfoListView, "Dynamic Base", d.SetupInformation.DynamicBase);
-			Populate(AppInfoListView, "Friendly Name", d.FriendlyName);
-			Populate(AppInfoListView, "License File", d.SetupInformation.LicenseFile);
-			Populate(AppInfoListView, "private Bin Path", d.SetupInformation.PrivateBinPath);
-			Populate(AppInfoListView, "Shadow Copy Directories", d.SetupInformation.ShadowCopyDirectories);
-			Populate(AppInfoListView, " ", " ");
-			Populate(AppInfoListView, "Entry Assembly", _EntryAssemblyName);
-			Populate(AppInfoListView, "Executing Assembly", _ExecutingAssemblyName);
-			Populate(AppInfoListView, "Calling Assembly", _CallingAssemblyName);
+			Populate(lstAppInfo, "Application Name", d.SetupInformation.ApplicationName);
+			Populate(lstAppInfo, "Application Base", d.SetupInformation.ApplicationBase);
+			Populate(lstAppInfo, "Cache Path", d.SetupInformation.CachePath);
+			Populate(lstAppInfo, "Configuration File", d.SetupInformation.ConfigurationFile);
+			Populate(lstAppInfo, "Dynamic Base", d.SetupInformation.DynamicBase);
+			Populate(lstAppInfo, "Friendly Name", d.FriendlyName);
+			Populate(lstAppInfo, "License File", d.SetupInformation.LicenseFile);
+			Populate(lstAppInfo, "private Bin Path", d.SetupInformation.PrivateBinPath);
+			Populate(lstAppInfo, "Shadow Copy Directories", d.SetupInformation.ShadowCopyDirectories);
+			Populate(lstAppInfo, " ", " ");
+			Populate(lstAppInfo, "Entry Assembly", _EntryAssemblyName);
+			Populate(lstAppInfo, "Executing Assembly", _ExecutingAssemblyName);
+			Populate(lstAppInfo, "Calling Assembly", _CallingAssemblyName);
 		}
 
 		// <summary>
@@ -470,7 +470,7 @@ namespace Renamer.Dialogs
 			{
 				PopulateAssemblySummary(a);
 			}
-			AssemblyNamesComboBox.SelectedIndex = AssemblyNamesComboBox.FindStringExact(_EntryAssemblyName);
+			cbAssemblyNames.SelectedIndex = cbAssemblyNames.FindStringExact(_EntryAssemblyName);
 		}
 
 		// <summary>
@@ -500,8 +500,8 @@ namespace Renamer.Dialogs
 			//lvi.SubItems.Add(AssemblyVersion(a))
 			//lvi.SubItems.Add(AssemblyBuildDatestring(a, true))
 			//lvi.SubItems.Add(AssemblyCodeBase(a))
-			AssemblyInfoListView.Items.Add(lvi);
-			AssemblyNamesComboBox.Items.Add(strAssemblyName);
+			lstAssemblyInfo.Items.Add(lvi);
+			cbAssemblyNames.Items.Add(strAssemblyName);
 		}
 
 		// <summary>
@@ -527,32 +527,32 @@ namespace Renamer.Dialogs
 			// set icon from parent, if present
 			if (Owner == null)
 			{
-				ImagePictureBox.Visible = false;
-				AppTitleLabel.Left = AppCopyrightLabel.Left;
-				AppDescriptionLabel.Left = AppCopyrightLabel.Left;
+				picApplicationIcon.Visible = false;
+				lblApplicationTitle.Left = lblApplicationCopyright.Left;
+				lblApplicationDescription.Left = lblApplicationCopyright.Left;
 			}
 			else
 			{
 				Icon = Owner.Icon;
-				ImagePictureBox.Image = Icon.ToBitmap();
+				picApplicationIcon.Image = Icon.ToBitmap();
 			}
 			// replace all labels and window title
 			Text = ReplaceTokens(Text);
-			AppTitleLabel.Text = ReplaceTokens(AppTitleLabel.Text);
-			if (AppDescriptionLabel.Visible){
-				AppDescriptionLabel.Text = ReplaceTokens(AppDescriptionLabel.Text);
+			lblApplicationTitle.Text = ReplaceTokens(lblApplicationTitle.Text);
+			if (lblApplicationDescription.Visible){
+				lblApplicationDescription.Text = ReplaceTokens(lblApplicationDescription.Text);
 			}
-			if (AppCopyrightLabel.Visible){
-				AppCopyrightLabel.Text = ReplaceTokens(AppCopyrightLabel.Text);
+			if (lblApplicationCopyright.Visible){
+				lblApplicationCopyright.Text = ReplaceTokens(lblApplicationCopyright.Text);
 			}
-			if (AppVersionLabel.Visible){
-				AppVersionLabel.Text = ReplaceTokens(AppVersionLabel.Text);
+			if (lblApplicationVersion.Visible){
+				lblApplicationVersion.Text = ReplaceTokens(lblApplicationVersion.Text);
 			}
-			if (AppDateLabel.Visible){
-				AppDateLabel.Text = ReplaceTokens(AppDateLabel.Text);
+			if (lblApplicationBuildDate.Visible){
+				lblApplicationBuildDate.Text = ReplaceTokens(lblApplicationBuildDate.Text);
 			}
-			if (MoreRichTextBox.Visible){
-				MoreRichTextBox.Text = ReplaceTokens(MoreRichTextBox.Text);
+			if (txtAdditionalDescription.Visible){
+				txtAdditionalDescription.Text = ReplaceTokens(txtAdditionalDescription.Text);
 			}
 		}
 
@@ -592,7 +592,7 @@ namespace Renamer.Dialogs
 		}
 
 		// <summary>
-		// matches assembly by Assembly.GetName.Name; returns nothing if no match
+		// matches assembly by Assembly.GetName.PROVIDER_NAME_KEY; returns nothing if no match
 		// </summary>
 		private Assembly MatchAssemblyByName(string AssemblyName)
 		{
@@ -626,11 +626,11 @@ namespace Renamer.Dialogs
 			}catch(Exception){
 			}
 
-			_MinWindowHeight = AppCopyrightLabel.Top + AppCopyrightLabel.Height + OKButton.Height + 30;
+			_MinWindowHeight = lblApplicationCopyright.Top + lblApplicationCopyright.Height + btnOkAndClose.Height + 30;
 
-			TabPanelDetails.Visible = false;
-			if (!MoreRichTextBox.Visible){
-				Height = Height - MoreRichTextBox.Height;
+			tabPanelDetails.Visible = false;
+			if (!txtAdditionalDescription.Visible){
+				Height = Height - txtAdditionalDescription.Height;
 			}
 		}
 
@@ -651,18 +651,18 @@ namespace Renamer.Dialogs
 		// <summary>
 		// expand about dialog to show additional advanced details
 		// </summary>
-		private void DetailsButton_Click(object sender, EventArgs e)
+		private void btnShowDetails_Click(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
-			DetailsButton.Visible = false;
+			btnShowDetails.Visible = false;
 			SuspendLayout();
 			MaximizeBox = true;
 			FormBorderStyle = FormBorderStyle.Sizable;
 			SizeGripStyle = SizeGripStyle.Show;
 			Size = new Size(580, Size.Height + 200);
-			MoreRichTextBox.Visible = false;
-			TabPanelDetails.Visible = true;
-			SysInfoButton.Visible = true;
+			txtAdditionalDescription.Visible = false;
+			tabPanelDetails.Visible = true;
+			btnSystemInfo.Visible = true;
 			PopulateAssemblies();
 			PopulateAppInfo();
 			CenterToParent();
@@ -673,7 +673,7 @@ namespace Renamer.Dialogs
 		// <summary>
 		// for detailed system info, launch the external Microsoft system info app
 		// </summary>
-		private void SysInfoButton_Click(object sender, EventArgs e)
+		private void btnSystemInfo_Click(object sender, EventArgs e)
 		{
 			ShowSysInfo();
 		}
@@ -681,47 +681,47 @@ namespace Renamer.Dialogs
 		// <summary>
 		// if an assembly is double-clicked, go to the detail page for that assembly
 		// </summary>
-		private void AssemblyInfoListView_DoubleClick(object sender, EventArgs e)
+		private void lstAssemblyInfo_DoubleClick(object sender, EventArgs e)
 		{
 			string strAssemblyName;
-			if (AssemblyInfoListView.SelectedItems.Count > 0){
-				strAssemblyName = Convert.ToString(AssemblyInfoListView.SelectedItems[0].Tag);
-				AssemblyNamesComboBox.SelectedIndex = AssemblyNamesComboBox.FindStringExact(strAssemblyName);
-				TabPanelDetails.SelectedTab = TabPageAssemblyDetails;
+			if (lstAssemblyInfo.SelectedItems.Count > 0){
+				strAssemblyName = Convert.ToString(lstAssemblyInfo.SelectedItems[0].Tag);
+				cbAssemblyNames.SelectedIndex = cbAssemblyNames.FindStringExact(strAssemblyName);
+				tabPanelDetails.SelectedTab = tabPageAssemblyDetails;
 			}
 		}
 
 		// <summary>
 		// if a new assembly is selected from the combo box, show details for that assembly
 		// </summary>
-		private void AssemblyNamesComboBox_SelectedIndexChanged(object sender, EventArgs e)
+		private void cbAssemblyNames_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			string strAssemblyName = Convert.ToString(AssemblyNamesComboBox.SelectedItem);
-			PopulateAssemblyDetails(MatchAssemblyByName(strAssemblyName), AssemblyDetailsListView);
+			string strAssemblyName = Convert.ToString(cbAssemblyNames.SelectedItem);
+			PopulateAssemblyDetails(MatchAssemblyByName(strAssemblyName), lstAssemblyDetails);
 		}
 
 		// <summary>
 		// sort the assembly list by column
 		// </summary>
-		private void AssemblyInfoListView_ColumnClick(object sender, ColumnClickEventArgs e)
+		private void lstAssemblyInfo_ColumnClick(object sender, ColumnClickEventArgs e)
 		{
 			int intTargetCol = e.Column + 1;
 
-			if (AssemblyInfoListView.Tag != null)
+			if (lstAssemblyInfo.Tag != null)
 			{
-				if (Math.Abs(Convert.ToInt32(AssemblyInfoListView.Tag)) == intTargetCol)
+				if (Math.Abs(Convert.ToInt32(lstAssemblyInfo.Tag)) == intTargetCol)
 				{
-					intTargetCol = -Convert.ToInt32(AssemblyInfoListView.Tag);
+					intTargetCol = -Convert.ToInt32(lstAssemblyInfo.Tag);
 				}
 			}
-			AssemblyInfoListView.Tag = intTargetCol;
-			AssemblyInfoListView.ListViewItemSorter = new ListViewItemComparer(intTargetCol, true);
+			lstAssemblyInfo.Tag = intTargetCol;
+			lstAssemblyInfo.ListViewItemSorter = new ListViewItemComparer(intTargetCol, true);
 		}
 
 		// <summary>
 		// launch any http:// or mailto: links clicked in the body of the rich text box
 		// </summary>
-		private void MoreRichTextBox_LinkClicked(object sender, LinkClickedEventArgs e)
+		private void txtAdditionalDescription_LinkClicked(object sender, LinkClickedEventArgs e)
 		{
 			try
 			{
@@ -772,10 +772,10 @@ namespace Renamer.Dialogs
 			}
 		}
 
-		private void TabPanelDetails_SelectedIndexChanged(object sender, EventArgs e)
+		private void tabPanelDetails_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (TabPanelDetails.SelectedTab == TabPageAssemblyDetails)
-				AssemblyNamesComboBox.Focus();
+			if (tabPanelDetails.SelectedTab == tabPageAssemblyDetails)
+				cbAssemblyNames.Focus();
 		}
 
 	}

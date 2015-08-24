@@ -672,7 +672,7 @@ namespace Schematrix
 		}
 
 		/// <summary>
-		/// Extracts the current file to a specified destination path and filename
+		/// Extracts the current file to a specified destination path and configurationFilePath
 		/// </summary>
 		/// <param name="destinationName">Path and name of extracted file</param>
 		/// <returns></returns>

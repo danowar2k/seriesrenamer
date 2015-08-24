@@ -167,7 +167,7 @@ namespace Renamer.Dialogs
             this.nudMSSub.TabIndex = 11;
             this.nudMSSub.Click += new System.EventHandler(this.Subs_Click);
             // 
-            // cbSubs
+            // cbSubtitleProviders
             // 
             this.cbSubs.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbSubs.FormattingEnabled = true;

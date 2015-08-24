@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using Renamer.Classes.Configuration.Keywords;
+using Renamer.Classes.Configuration;
 using System.IO;
 
 namespace Renamer.Classes
@@ -132,7 +132,7 @@ namespace Renamer.Classes
             this.filename = replaceInvalidChars(this.filename);
         }
         private string replaceInvalidChars(string str) {
-            return Regex.Replace(str, invalidFileCharsPattern(), Helper.ReadProperty(Config.InvalidCharReplace));
+            return Regex.Replace(str, invalidFileCharsPattern(), Helper.ReadProperty(ConfigKeyConstants.REPLACE_INVALID_CHARS_WITH_KEY));
         }
 
         private string invalidFileCharsPattern() {
@@ -142,6 +142,7 @@ namespace Renamer.Classes
         private void replaceAltDirectorySeperator() {
             this.path = this.path.Replace(System.IO.Path.AltDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
         }
+
         private void trailingSlashCheck() {
             if(!pathHasTrailingSlash())
                 this.addTrailingSlash();
@@ -261,7 +262,7 @@ namespace Renamer.Classes
             string[] folders = path.Split(new char[] { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < folders.Length; i++)
             {
-                folders[i] = Regex.Replace(folders[i], "\\((?<letter>\\w)\\)", "${letter}");//.Replace("(", "").Replace(")", "");
+                folders[i] = Regex.Replace(folders[i], "\\((?<letter>\\w)\\)", "${letter}");//.CUSTOM_REPLACE_REGEX_STRINGS_KEY("(", "").CUSTOM_REPLACE_REGEX_STRINGS_KEY(")", "");
             }
             return folders;
         }
@@ -273,7 +274,7 @@ namespace Renamer.Classes
         /// <returns></returns>
         public static bool IsExtractionDirectory(string path)
         {
-            string[] tags = Helper.ReadProperties(Config.Tags);
+            string[] tags = Helper.ReadProperties(ConfigKeyConstants.MOVIES_TAGS_TO_REMOVE_LIST_KEY);
             string tag = "";
             foreach (string t in tags)
             {
