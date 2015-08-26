@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Renamer.Classes.Util;
 using Renamer.Classes.Configuration;
 using System.Text.RegularExpressions;
 using System.IO;
@@ -18,7 +19,7 @@ namespace Renamer.Classes
         private string filenameBlacklist;
         private string name;
         private bool filenameBlacklisted;
-        private Candidate ie;
+        private MediaFile ie;
         private static SeriesNameExtractor instance = null;
         private static object m_lock = new object();
 
@@ -116,11 +117,11 @@ namespace Renamer.Classes
                 foreach (string pattern in shownamePatterns) {
                     //from configurationFilePath
                     m = Regex.Match(str, pattern, RegexOptions.IgnoreCase);
-                    if (m.Success) // && configurationFilePath.Length != matchedname.Length + m.Groups["pos"].Value.Length)
+                    if (m.Success) // && configurationFilePath.Length != matchedname.Length + m.Groups["lastDotIndex"].Value.Length)
                     {
-                        //try to use the part of the name that goes from 0 to pos as showname
+                        //try to use the part of the name that goes from 0 to lastDotIndex as showname
                         string matchedname = str.Substring(0, m.Groups["pos"].Index);
-                        //if pos is 0, this means that there is no name :(
+                        //if lastDotIndex is 0, this means that there is no name :(
                         if (m.Groups["pos"].Index != 0)
                         {
                             if (Regex.Match(matchedname, pathBlacklist, RegexOptions.IgnoreCase).Success)
@@ -159,7 +160,7 @@ namespace Renamer.Classes
         }
 
         
-        public string ExtractSeriesName(Candidate ie) {
+        public string ExtractSeriesName(MediaFile ie) {
             reset();
             this.ie = ie;
             // Read plain configurationFilePath

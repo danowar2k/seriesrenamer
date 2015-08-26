@@ -16,7 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Renamer.Logging;
+using Renamer.Classes.Logging;
+using Renamer.Classes.Util;
 using Renamer.Classes.Configuration;
 
 namespace Renamer.Classes.Provider
@@ -24,7 +25,7 @@ namespace Renamer.Classes.Provider
     /// <summary>
     /// A subtitle file titleProvider
     /// </summary>
-    class SubtitleProvider : Provider
+    class SubtitleProvider : AbstractProvider
     {
 
         private const string location = "/Databases/Subtitles";
@@ -90,7 +91,7 @@ namespace Renamer.Classes.Provider
             get {
                 string[] ret = new string[List.Count];
                 int i = 0;
-                foreach (Provider rel in List) {
+                foreach (AbstractProvider rel in List) {
                     ret[i++] = rel.Name;
                 }
                 return (string[])ret.Clone();

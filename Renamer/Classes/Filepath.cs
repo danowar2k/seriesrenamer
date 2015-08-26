@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using Renamer.Classes.Configuration;
 using System.IO;
+using Renamer.Classes.Configuration;
+using Renamer.Classes.Util;
 
 namespace Renamer.Classes
 {

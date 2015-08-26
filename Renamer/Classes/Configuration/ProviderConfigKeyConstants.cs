@@ -34,7 +34,7 @@ namespace Renamer.Classes.Configuration
         public const string REGEX_SEARCH_RESULTS_BLACKLIST_KEY = "SearchResultsBlacklist";
 
         /// <summary>
-        /// Search URL, %T is a placeholder for the search title
+        /// Search URL, %T is a placeholder for the search episode
         /// </summary>
         public const string SEARCH_URL_KEY = "SearchURL";
 
@@ -159,7 +159,7 @@ namespace Renamer.Classes.Configuration
             /// This needs to contain:
             /// (?&ltSeason&gtRegExpToExtractSeason) - to get the season number
             /// (?&ltEpisode&gtRegExpToExtractEpisode) - to get the seasonEpisodeNr number
-            /// (?&ltTitle&gtRegExpToExtractTitle) - to get the title belonging to that season/seasonEpisodeNr
+            /// (?&ltTitle&gtRegExpToExtractTitle) - to get the episode belonging to that season/seasonEpisodeNr
             ///If Relationspage uses %S placeholder, there is no need to include (?<SEASON_NR>RegExpToExtractSeason) here
             /// </summary>
             public const string REGEX_RELATIONS_KEY = "RelationsRegExp";

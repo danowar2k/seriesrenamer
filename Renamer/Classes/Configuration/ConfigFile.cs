@@ -18,7 +18,7 @@ using System.Text;
 using System.Collections;
 using System.IO;
 using System.Diagnostics;
-using Renamer.Logging;
+using Renamer.Classes.Logging;
 using System.Text.RegularExpressions;
 
 namespace Renamer.Classes.Configuration

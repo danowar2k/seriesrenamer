@@ -16,7 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Renamer.Logging;
+using Renamer.Classes.Logging;
+using Renamer.Classes.Util;
 using Renamer.Classes.Configuration;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -24,9 +25,9 @@ namespace Renamer.Classes.Provider
 {
     /// <summary>
     /// A titleProvider for episode titles
-    /// This class keeps track of all available title providers
+    /// This class keeps track of all available episode providers
     /// </summary>
-    public class TitleProvider : Provider
+    public class TitleProvider : AbstractProvider
     {
         /// <summary>
         /// The separator used in the search result history separating the search string and the chosen result 
@@ -90,7 +91,7 @@ namespace Renamer.Classes.Provider
         }
 
         /// <summary>
-        /// Checks the app subfolder for title titleProvider configuration files and populates the list with valid titleProvider configurations
+        /// Checks the app subfolder for episode titleProvider configuration files and populates the list with valid titleProvider configurations
         /// </summary>
         public static void LoadAllValidTitleProviders()
         {
@@ -189,7 +190,7 @@ namespace Renamer.Classes.Provider
         /// This needs to contain:
         /// (?&ltSeason&gtRegExpToExtractSeason) - to get the season number
         /// (?&ltEpisode&gtRegExpToExtractEpisode) - to get the episode number
-        /// (?&ltTitle&gtRegExpToExtractTitle) - to get the title belonging to that season/episode
+        /// (?&ltTitle&gtRegExpToExtractTitle) - to get the episode belonging to that season/episode
         ///If Relationspage uses %S placeholder, there is no need to include (?<SEASON_NR>RegExpToExtractSeason) here
         /// </summary>
         public string RelationsRegExp {

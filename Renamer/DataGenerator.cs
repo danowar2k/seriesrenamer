@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using Renamer.Classes;
-using Renamer.Logging;
+using Renamer.Classes.Logging;
 using System.Windows.Forms;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
-using Renamer.Dialogs;
+using Renamer.Classes.UI.Dialogs;
 using System.Runtime.InteropServices;
 using Renamer.Classes.Configuration;
+using Renamer.Classes.TVShows;
 using Renamer.Classes.Provider;
+using Renamer.Classes.Subtitles;
+using Renamer.Classes.UI;
+using Renamer.Classes.Util;
+
 using System.ComponentModel;
 
 namespace Renamer
@@ -22,7 +27,7 @@ namespace Renamer
         public static void GetAllTitles(BackgroundWorker worker, DoWorkEventArgs e) {
             //make a list of shownames
             List<string> shownames = new List<string>();
-            foreach (Candidate ie in CandidateManager.Instance) {
+            foreach (MediaFile ie in MediaFileManager.Instance) {
                 if (ie.ProcessingRequested && !ie.Movie && ie.Showname!="" && !ie.Sample && !shownames.Contains(ie.Showname) ) {
                     shownames.Add(ie.Showname);
                 }
@@ -408,7 +413,7 @@ namespace Renamer
             int season = 1;
             string url2 = url;
             //Create new RelationCollection
-            TitleCollection rc = new TitleCollection(Showname);
+            TvShow rc = new TvShow(Showname);
             while (true) {
                 if (url2.Contains("%S")) {
                     url = url2.Replace("%S", season.ToString());
@@ -503,24 +508,24 @@ namespace Renamer
                         //if we are iterating through season pages, take season from page url directly
                         if (url != url2)
                         {
-                            rc.AddRelation(new EpisodeData(season, e, result));
+                            rc.AddEpisode(new ShowEpisode(season, e, result));
                             Logger.Instance.LogMessage("Found Relation: " + "S" + s.ToString() + "E" + e.ToString() + " - " + result, LogLevel.DEBUG);
                         }
                         else
                         {
-                            rc.AddRelation(new EpisodeData(s, e, result));
+                            rc.AddEpisode(new ShowEpisode(s, e, result));
                             Logger.Instance.LogMessage("Found Relation: " + "S" + s.ToString() + "E" + e.ToString() + " - " + result, LogLevel.DEBUG);
                         }
                     }
                 }
-                TitleManager.Instance.AddRelationCollection(rc);
+                TvShowManager.Instance.AddTvShow(rc);
 
                 // THOU SHALL NOT FORGET THE BREAK
                 if (!url2.Contains("%S"))
                     break;
                 season++;
             }
-            Logger.Instance.LogMessage("" + (season - 1) + " Seasons, " + rc.Count + " relations found", LogLevel.DEBUG);
+            Logger.Instance.LogMessage("" + (season - 1) + " Seasons, " + rc.CountEpisodes + " relations found", LogLevel.DEBUG);
         }        
 
         /// <summary>
@@ -529,14 +534,14 @@ namespace Renamer
         /// <param name="clear">if true, list is cleared first and unconnected subtitle files are scheduled to be renamed</param>
         /// <param name="KeepShowName">if set, show name isn't altered</param>
         public static void UpdateList(bool clear, BackgroundWorker worker, DoWorkEventArgs e) {
-            CandidateManager infoManager = CandidateManager.Instance;
+            MediaFileManager infoManager = MediaFileManager.Instance;
            
             // Clear list if desired, remove deleted files otherwise
             if (clear) {
-                infoManager.Clear();
+                infoManager.clear();
             }
             else {
-                infoManager.RemoveMissingFileEntries();
+                infoManager.removeMissingFileEntries();
             }
 
             // read path from config && remove tailing slashes
@@ -594,7 +599,7 @@ namespace Renamer
                     patterns[i] = RegexConverter.toRegex(patterns[i]);
                 }
                 int DirectorySeason = -1;
-                Candidate ie = null;
+                MediaFile ie = null;
                 bool contains = false;
                 DateTime dt;
                 string currentpath = "";
@@ -615,7 +620,7 @@ namespace Renamer
                     //Check if there is already an entry on this file, and if not, create one
                     ie = null;
                     currentpath = Path.GetDirectoryName(file.FullName);
-                    foreach (Candidate i in CandidateManager.Instance) {
+                    foreach (MediaFile i in MediaFileManager.Instance) {
                         if (i.Filename == file.Name && i.FilePath.Path == currentpath) {
                             ie = i;
                             break;
@@ -623,7 +628,7 @@ namespace Renamer
                     }
 
                     if (ie == null) {
-                        ie = new Candidate();
+                        ie = new MediaFile();
                     }
 
                     //test for movie path so we can skip all series recognition code
@@ -650,28 +655,28 @@ namespace Renamer
 
                         //Need to do this for filenames which only contain episode numbers (But might be moved in a season dirArgument already)
                         //if season number couldn't be extracted, try to get it from folder
-                        if (ie.Season <= 0 && DirectorySeason != -1)
+                        if (ie.SeasonNr <= 0 && DirectorySeason != -1)
                         {
-                            ie.Season = DirectorySeason;
+                            ie.SeasonNr = DirectorySeason;
                         }
 
                         //if season recognized from directory name doesn't match season recognized from configurationFilePath, the file might be located in a wrong directory
-                        if (DirectorySeason != -1 && ie.Season != DirectorySeason)
+                        if (DirectorySeason != -1 && ie.SeasonNr != DirectorySeason)
                         {
-                            Logger.Instance.LogMessage("File seems to be located inconsistently: " + ie.Filename + " was recognized as season " + ie.Season + ", but folder name indicates that it should be season " + DirectorySeason.ToString(), LogLevel.WARNING);
+                            Logger.Instance.LogMessage("File seems to be located inconsistently: " + ie.Filename + " was recognized as season " + ie.SeasonNr + ", but folder name indicates that it should be season " + DirectorySeason.ToString(), LogLevel.WARNING);
                         }
 
                         
                     }
 
                     //if nothing could be recognized, assume that this is a movie
-                    if ((ie.Season < 1 && ie.Episode < 1) || ie.Movie) {
+                    if ((ie.SeasonNr < 1 && ie.EpisodeNr < 1) || ie.Movie) {
                         ie.RemoveVideoTags();
                     }
 
                     //if not added yet, add it
                     if (!contains) {
-                        CandidateManager.Instance.Add(ie);
+                        MediaFileManager.Instance.Add(ie);
                     }
                 }
                 //SelectSimilarFilesForProcessing(path,Helper.ReadProperties(ConfigKeyConstants.LAST_SEARCHED_SERIES_TITLES_KEY)[0]);
@@ -679,15 +684,15 @@ namespace Renamer
             }
 
             //Recreate subtitle names so they can adjust to the video files they belong to
-            foreach (Candidate ie in CandidateManager.Instance)
+            foreach (MediaFile ie in MediaFileManager.Instance)
             {
                 if (ie.IsSubtitle)
                 {
-                    ie.CreateNewName();
+                    ie.createTargetName();
                 }
             }
 
-            Logger.Instance.LogMessage("Found " + CandidateManager.Instance.Count + " Files", LogLevel.INFO);
+            Logger.Instance.LogMessage("Found " + MediaFileManager.Instance.CountMediaFiles + " Files", LogLevel.INFO);
             if (Helper.ReadBool(ConfigKeyConstants.REPORT_MISSING_EPISODES_KEY))
             {
                 FindMissingEpisodes();
@@ -698,7 +703,7 @@ namespace Renamer
         /// Extracts season and episode number by using some regexes from config file
         /// </summary>
         /// <param name="ie">Candidate which should be processed</param>
-        public static void ExtractSeasonAndEpisode(Candidate ie)
+        public static void ExtractSeasonAndEpisode(MediaFile ie)
         {
             string[] patterns = Helper.ReadProperties(ConfigKeyConstants.EPISODE_IDENTIFIER_PATTERNS_KEY);
             for (int i = 0; i < patterns.Length; i++)
@@ -713,7 +718,7 @@ namespace Renamer
         /// </summary>
         /// <param name="ie">Candidate which should be processed</param>
         /// <param name="patterns">Patterns to be used for recognition, supply these for speed reasons?</param>
-        public static void ExtractSeasonAndEpisode(Candidate ie, string[] patterns)
+        public static void ExtractSeasonAndEpisode(MediaFile ie, string[] patterns)
         {            
             string strSeason = "";
             string strEpisode = "";
@@ -786,8 +791,8 @@ namespace Renamer
                         episode = -1;
                         continue;
                     }
-                    ie.Season = season;
-                    ie.Episode = episode;
+                    ie.SeasonNr = season;
+                    ie.EpisodeNr = episode;
                     return;
                 }
             }
@@ -796,51 +801,51 @@ namespace Renamer
         {
             public int maxEpisode = 0;
             public int minEpisode = Int32.MaxValue;
-            public List<Candidate> entries = new List<Candidate>();
+            public List<MediaFile> entries = new List<MediaFile>();
         }
 
         private static void FindMissingEpisodes()
         {            
             Hashtable paths = new Hashtable();
 
-            foreach (Candidate ie in CandidateManager.Instance)
+            foreach (MediaFile ie in MediaFileManager.Instance)
             {
                 if (!string.IsNullOrEmpty(ie.Showname))
                 {
-                    if (paths.ContainsKey(ie.Showname + ie.Season))
+                    if (paths.ContainsKey(ie.Showname + ie.SeasonNr))
                     {
-                        if (((EpisodeCollection)paths[ie.Showname + ie.Season]).maxEpisode < ie.Episode)
+                        if (((EpisodeCollection)paths[ie.Showname + ie.SeasonNr]).maxEpisode < ie.EpisodeNr)
                         {
-                            ((EpisodeCollection)paths[ie.Showname + ie.Season]).maxEpisode = ie.Episode;
+                            ((EpisodeCollection)paths[ie.Showname + ie.SeasonNr]).maxEpisode = ie.EpisodeNr;
                         }
-                        if (((EpisodeCollection)paths[ie.Showname + ie.Season]).minEpisode > ie.Episode)
+                        if (((EpisodeCollection)paths[ie.Showname + ie.SeasonNr]).minEpisode > ie.EpisodeNr)
                         {
-                            ((EpisodeCollection)paths[ie.Showname + ie.Season]).minEpisode = ie.Episode;
+                            ((EpisodeCollection)paths[ie.Showname + ie.SeasonNr]).minEpisode = ie.EpisodeNr;
                         }
-                        ((EpisodeCollection)paths[ie.Showname + ie.Season]).entries.Add(ie);
+                        ((EpisodeCollection)paths[ie.Showname + ie.SeasonNr]).entries.Add(ie);
                     }
                     else
                     {
                         EpisodeCollection ec = new EpisodeCollection();
-                        ec.maxEpisode = ie.Episode;
-                        ec.minEpisode = ie.Episode;
+                        ec.maxEpisode = ie.EpisodeNr;
+                        ec.minEpisode = ie.EpisodeNr;
                         ec.entries.Add(ie);
-                        paths.Add(ie.Showname + ie.Season, ec);
+                        paths.Add(ie.Showname + ie.SeasonNr, ec);
                     }
                 }
             }
             foreach (string key in paths.Keys)
             {
                 int missing = 0;
-                string message = "Missing episodes in " + ((EpisodeCollection)paths[key]).entries[0].Showname +" Season "+((EpisodeCollection)paths[key]).entries[0].Season+": ";
+                string message = "Missing episodes in " + ((EpisodeCollection)paths[key]).entries[0].Showname +" Season "+((EpisodeCollection)paths[key]).entries[0].SeasonNr+": ";
                 string premessage = "";
                 string postmessage = "";
                 for (int i = 1; i <= ((EpisodeCollection)paths[key]).maxEpisode; i++)
                 {                    
                     bool found=false;
-                    foreach (Candidate ie in ((EpisodeCollection)paths[key]).entries)
+                    foreach (MediaFile ie in ((EpisodeCollection)paths[key]).entries)
                     {
-                        if (ie.Episode == i)
+                        if (ie.EpisodeNr == i)
                         {
                             found = true;
                             break;
@@ -876,13 +881,13 @@ namespace Renamer
             }
         }
         private static void SelectRecognizedFilesForProcessing() {
-            foreach (Candidate ie in CandidateManager.Instance) {
+            foreach (MediaFile ie in MediaFileManager.Instance) {
                 if (ie.Sample&&!ie.MarkedForDeletion) {
                     ie.ProcessingRequested = false;
                     ie.Movie = false;
                 }
                 else {
-                    ie.ProcessingRequested = (ie.Season != -1 && ie.Episode != -1)||(ie.Movie && ((ie.Destination!="" && ie.Destination!=ie.FilePath.Path)||(ie.NewFilename!=""&&ie.NewFilename!=ie.Filename)));
+                    ie.ProcessingRequested = (ie.SeasonNr != -1 && ie.EpisodeNr != -1)||(ie.Movie && ((ie.Destination!="" && ie.Destination!=ie.FilePath.Path)||(ie.NewFilename!=""&&ie.NewFilename!=ie.Filename)));
                 }
             }
         }

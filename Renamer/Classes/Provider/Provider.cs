@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Renamer.Classes.Util;
 using Renamer.Classes.Configuration;
 
 namespace Renamer.Classes.Provider
@@ -23,7 +24,7 @@ namespace Renamer.Classes.Provider
     /// <summary>
     /// An abstract titleProvider of tv show episode titles
     /// </summary>
-    public abstract class Provider
+    public abstract class AbstractProvider
     {
         private static string appBaseDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
@@ -49,11 +50,11 @@ namespace Renamer.Classes.Provider
         private string searchResultsBlacklist = "";
         private string relationsRemove = "";
 
-        public Provider() {
+        public AbstractProvider() {
 
         }
 
-        public Provider(string someConfigurationFilePath) {
+        public AbstractProvider(string someConfigurationFilePath) {
 
             this.configurationFilePath = someConfigurationFilePath;
             this.Name = Helper.ReadProperty(ProviderConfigKeyConstants.PROVIDER_NAME_KEY, someConfigurationFilePath);
@@ -100,7 +101,7 @@ namespace Renamer.Classes.Provider
         }
 
         /// <summary>
-        /// Search URL, %T is a placeholder for the search title
+        /// Search URL, %T is a placeholder for the search episode
         /// </summary>
         public string SearchUrl {
             get { return searchUrl; }
