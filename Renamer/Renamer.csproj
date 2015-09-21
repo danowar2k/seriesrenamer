@@ -20,7 +20,7 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <TargetZone>LocalIntranet</TargetZone>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-    <StartupObject>Renamer.Classes.Main.Program</StartupObject>
+    <StartupObject>Renamer.NewClasses.Main.Program</StartupObject>
     <ApplicationIcon>Resources\sr1.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -51,7 +51,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\SeriesRenamer.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\SeriesRenamer.XML</DocumentationFile>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -66,6 +67,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLs\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Design" />
     <Reference Include="System.Web" />
@@ -76,184 +81,223 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Configuration\ConfigKeyConstants.cs" />
-    <Compile Include="Classes\Configuration\ProviderConfigKeyConstants.cs" />
-    <Compile Include="Classes\Enums\MainTask.cs" />
-    <Compile Include="Classes\FileCopy.cs" />
-    <Compile Include="Classes\Movies\MovieNameExtractor.cs" />
-    <Compile Include="Classes\NameCleanup.cs" />
-    <Compile Include="Classes\RegexConverter.cs" />
-    <Compile Include="Classes\TVShows\TvShow.cs" />
-    <Compile Include="Classes\Util\StringTools.cs" />
-    <Compile Include="Classes\Subtitles\SubtitleFileManager.cs" />
-    <Compile Include="Classes\WinHttpSafeNativeMethods.cs" />
-    <Compile Include="DataGenerator.cs" />
-    <Compile Include="Classes\UI\Dialogs\AboutBox.cs">
+    <Compile Include="NewClasses\Collector\EpisodeCollection.cs" />
+    <Compile Include="NewClasses\Collector\LocalCollector.cs" />
+    <Compile Include="NewClasses\Collector\ParsedSearch.cs" />
+    <Compile Include="NewClasses\Collector\SubtitleCollector.cs" />
+    <Compile Include="NewClasses\Collector\TvShowCollector.cs" />
+    <Compile Include="NewClasses\Config\Application\AppConfigurationWrapper.cs" />
+    <Compile Include="NewClasses\Config\Application\AppDefaults.cs" />
+    <Compile Include="NewClasses\Config\Application\AppProperties.cs" />
+    <Compile Include="NewClasses\Config\Application\AppPropertyComments.cs" />
+    <Compile Include="NewClasses\Config\ConfigurationWrapper.cs" />
+    <Compile Include="NewClasses\Config\ParserMode.cs" />
+    <Compile Include="NewClasses\Config\Configuration.cs" />
+    <Compile Include="NewClasses\Config\ConfigurationManager.cs" />
+    <Compile Include="NewClasses\Config\Providers\ParseHTMLStrategyProperties.cs" />
+    <Compile Include="NewClasses\Config\Providers\ProviderProperties.cs" />
+    <Compile Include="NewClasses\Config\Settings.cs" />
+    <Compile Include="NewClasses\Config\Providers\SubtitleProviderProperties.cs" />
+    <Compile Include="NewClasses\Enums\LetterCaseStrategy.cs" />
+    <Compile Include="NewClasses\Enums\DirectoryStructureAction.cs" />
+    <Compile Include="NewClasses\Enums\Language.cs" />
+    <Compile Include="NewClasses\Enums\DiacriticStrategy.cs" />
+    <Compile Include="NewClasses\Enums\MainTask.cs" />
+    <Compile Include="NewClasses\Externals\Unrar.cs" />
+    <Compile Include="NewClasses\Filesystem\FileCopy.cs" />
+    <Compile Include="NewClasses\Filesystem\Filepath.cs" />
+    <Compile Include="NewClasses\Logging\TextBoxAppender.cs" />
+    <Compile Include="NewClasses\Main\Program.cs" />
+    <Compile Include="NewClasses\Media\MediaFile.cs" />
+    <Compile Include="NewClasses\Media\MediaFileManager.cs" />
+    <Compile Include="NewClasses\Network\WinHttpSafeNativeMethods.cs" />
+    <Compile Include="NewClasses\Providers\AbstractProvider.cs" />
+    <Compile Include="NewClasses\Providers\Strategies\ParseHTMLStrategy.cs" />
+    <Compile Include="NewClasses\Providers\Strategies\QueryAPIStrategy.cs" />
+    <Compile Include="NewClasses\Providers\Strategies\SearchStrategy.cs" />
+    <Compile Include="NewClasses\Providers\TvShowInfoProvider.cs" />
+    <Compile Include="NewClasses\Providers\TvShowInfoProviderManager.cs" />
+    <Compile Include="NewClasses\Subtitles\SubtitleEdit\srtFile.cs" />
+    <Compile Include="NewClasses\Subtitles\SubtitleEdit\SubtitleEditFile.cs" />
+    <Compile Include="NewClasses\Subtitles\SubtitleFile.cs" />
+    <Compile Include="NewClasses\Subtitles\SubtitleFileManager.cs" />
+    <Compile Include="NewClasses\Subtitles\SubtitleProvider.cs" />
+    <Compile Include="NewClasses\TvShows\Season.cs" />
+    <Compile Include="NewClasses\TvShows\Episode.cs" />
+    <Compile Include="NewClasses\TvShows\TvShow.cs" />
+    <Compile Include="NewClasses\TvShows\TvShowCollection.cs" />
+    <Compile Include="NewClasses\UI\Dialogs\Application\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\AboutBox.designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\Application\AboutBox.designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\Configuration\ConfigFile.cs" />
-    <Compile Include="Classes\MediaFile.cs" />
-    <Compile Include="Classes\Provider\Provider.cs" />
-    <Compile Include="Classes\TVShows\ShowEpisode.cs" />
-    <Compile Include="Classes\Provider\TitleProvider.cs" />
-    <Compile Include="Classes\Subtitles\SubtitleFile.cs" />
-    <Compile Include="Classes\Provider\SubtitleProvider.cs" />
-    <Compile Include="Classes\UI\Dialogs\CollidingFiles.cs">
+    <Compile Include="NewClasses\UI\Dialogs\Configuration\ConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\CollidingFiles.Designer.cs">
-      <DependentUpon>CollidingFiles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\ConfigurationDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\ConfigurationDialog.Designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\Configuration\ConfigurationDialog.Designer.cs">
       <DependentUpon>ConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\EditSubtitles.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\EnterSeason.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\EditSubtitles.Designer.cs">
-      <DependentUpon>EditSubtitles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\EnterSeason.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\EnterSeason.Designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\EnterSeason.Designer.cs">
       <DependentUpon>EnterSeason.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\FileSelector.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\EnterShowname.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\FileSelector.Designer.cs">
-      <DependentUpon>FileSelector.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\Filter.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\Filter.Designer.cs">
-      <DependentUpon>Filter.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\EnterShowname.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\EnterShowname.Designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\EnterShowname.Designer.cs">
       <DependentUpon>EnterShowname.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\RegexTester.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\Filter.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\RegexTester.Designer.cs">
-      <DependentUpon>RegexTester.cs</DependentUpon>
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\Filter.Designer.cs">
+      <DependentUpon>Filter.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\Filepath.cs" />
-    <Compile Include="Classes\UI\Dialogs\SetNewFileName.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\InputBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\SetNewFileName.Designer.cs">
-      <DependentUpon>SetNewFileName.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\ShownameSearch.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\ShownameSearch.Designer.cs">
-      <DependentUpon>ShownameSearch.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\UI\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\Util\Helper.cs" />
-    <Compile Include="Classes\UI\Dialogs\InputBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\InputBox.Designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\InputBox.Designer.cs">
       <DependentUpon>InputBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="MediaFileManager.cs" />
-    <Compile Include="Classes\UI\ListViewColumnSorter.cs" />
-    <Compile Include="Classes\UI\ListViewEx.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Classes\Logging\AbstractLogger.cs" />
-    <Compile Include="Classes\Logging\Logger.cs" />
-    <Compile Include="Classes\Logging\FileLogger.cs" />
-    <Compile Include="Classes\Logging\ILogger.cs" />
-    <Compile Include="Classes\Logging\ListBoxLogger.cs" />
-    <Compile Include="Classes\Logging\MessageBoxLogger.cs" />
-    <Compile Include="Classes\Logging\RichTextBoxLogger.cs" />
-    <Compile Include="Classes\Logging\TextBoxLogger.cs" />
-    <Compile Include="Classes\Main\Program.cs" />
-    <Compile Include="Classes\UI\Dialogs\ReplaceWindow.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\ReplaceWindow.Designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\ReplaceWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\ReplaceWindow.Designer.cs">
       <DependentUpon>ReplaceWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\SetEpisodes.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\SetEpisodes.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\UI\Dialogs\SetEpisodes.Designer.cs">
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\SetEpisodes.Designer.cs">
       <DependentUpon>SetEpisodes.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\SeriesNameExtractor.cs" />
-    <Compile Include="Classes\TVShows\TvShowManager.cs" />
-    <Compile Include="Classes\Configuration\Settings.cs" />
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\SetNewFileName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\MediaFiles\SetNewFileName.Designer.cs">
+      <DependentUpon>SetNewFileName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Renaming\CollidingFiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Renaming\CollidingFiles.Designer.cs">
+      <DependentUpon>CollidingFiles.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Subtitles\EditSubtitles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Subtitles\EditSubtitles.Designer.cs">
+      <DependentUpon>EditSubtitles.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Subtitles\FileSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Subtitles\FileSelector.Designer.cs">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\TvShows\ShownameSearch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\TvShows\ShownameSearch.Designer.cs">
+      <DependentUpon>ShownameSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Unused\RegexTester.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Unused\RegexTester.Designer.cs">
+      <DependentUpon>RegexTester.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Unused\SelectResult.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewClasses\UI\Dialogs\Unused\SelectResult.Designer.cs">
+      <DependentUpon>SelectResult.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewClasses\UI\Util\ListViewColumnSorter.cs" />
+    <Compile Include="NewClasses\UI\Util\ListViewEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="NewClasses\Util\AppConstants.cs" />
+    <Compile Include="NewClasses\Util\ConverterUtils.cs" />
+    <Compile Include="NewClasses\Util\FileSystemUtils.cs" />
+    <Compile Include="NewClasses\Util\ListUtils.cs" />
+    <Compile Include="NewClasses\Util\MovieUtils.cs" />
+    <Compile Include="NewClasses\Util\NameCleanup.cs" />
+    <Compile Include="NewClasses\Util\RegexConverter.cs" />
+    <Compile Include="NewClasses\Util\RenamingConstants.cs" />
+    <Compile Include="NewClasses\Util\SeriesNameExtractor.cs" />
+    <Compile Include="NewClasses\Util\StringUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Classes\UI\Dialogs\AboutBox.resx">
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Application\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\CollidingFiles.resx">
-      <DependentUpon>CollidingFiles.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\ConfigurationDialog.resx">
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Configuration\ConfigurationDialog.resx">
       <DependentUpon>ConfigurationDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\EditSubtitles.resx">
-      <DependentUpon>EditSubtitles.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\EnterSeason.resx">
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\EnterSeason.resx">
       <DependentUpon>EnterSeason.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\FileSelector.resx">
-      <DependentUpon>FileSelector.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\Filter.resx">
-      <DependentUpon>Filter.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\EnterShowname.resx">
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\EnterShowname.resx">
       <DependentUpon>EnterShowname.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\RegexTester.resx">
-      <DependentUpon>RegexTester.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\SetNewFileName.resx">
-      <DependentUpon>SetNewFileName.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\ShownameSearch.resx">
-      <DependentUpon>ShownameSearch.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\Filter.resx">
+      <DependentUpon>Filter.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\InputBox.resx">
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\InputBox.resx">
       <DependentUpon>InputBox.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\ListViewEx.resx">
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\ReplaceWindow.resx">
+      <DependentUpon>ReplaceWindow.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\SetEpisodes.resx">
+      <DependentUpon>SetEpisodes.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\MediaFiles\SetNewFileName.resx">
+      <DependentUpon>SetNewFileName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Renaming\CollidingFiles.resx">
+      <DependentUpon>CollidingFiles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Subtitles\EditSubtitles.resx">
+      <DependentUpon>EditSubtitles.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Subtitles\FileSelector.resx">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\TvShows\ShownameSearch.resx">
+      <DependentUpon>ShownameSearch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Unused\RegexTester.resx">
+      <DependentUpon>RegexTester.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Dialogs\Unused\SelectResult.resx">
+      <DependentUpon>SelectResult.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewClasses\UI\Util\ListViewEx.resx">
       <DependentUpon>ListViewEx.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -262,43 +306,26 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\ReplaceWindow.resx">
-      <DependentUpon>ReplaceWindow.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\SelectResult.resx">
-      <DependentUpon>SelectResult.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Classes\UI\Dialogs\SetEpisodes.resx">
-      <DependentUpon>SetEpisodes.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="Configuration\app.config" />
+    <None Include="log4net.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Configuration\Application\app.config" />
     <None Include="Configuration\Databases\Subtitles\Subtitles.cfg" />
     <None Include="Configuration\Databases\Subtitles\TVSubtitles ger.cfg" />
     <None Include="Configuration\Databases\Subtitles\TVSubtitles.cfg" />
-    <None Include="Configuration\Databases\Titles\EpGuides.cfg" />
-    <None Include="Configuration\Databases\Titles\Episodeworld en.cfg" />
-    <None Include="Configuration\Databases\Titles\Episodeworld ger.cfg" />
-    <None Include="Configuration\Databases\Titles\IMDB.cfg" />
-    <None Include="Configuration\Databases\Titles\Serienjunkies.cfg" />
-    <None Include="Configuration\Databases\Titles\TheTVDb.cfg" />
+    <None Include="Configuration\Databases\TvShows\EpGuides.cfg" />
+    <None Include="Configuration\Databases\TvShows\Episodeworld en.cfg" />
+    <None Include="Configuration\Databases\TvShows\Episodeworld ger.cfg" />
+    <None Include="Configuration\Databases\TvShows\IMDB.cfg" />
+    <None Include="Configuration\Databases\TvShows\Serienjunkies.cfg" />
+    <None Include="Configuration\Databases\TvShows\TheTVDb.cfg" />
+    <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
-    <Compile Include="Classes\UI\Dialogs\SelectResult.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Classes\UI\Dialogs\SelectResult.Designer.cs">
-      <DependentUpon>SelectResult.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Classes\Subtitles\SubtitleEdit\srtFile.cs" />
-    <Compile Include="Classes\Subtitles\SubtitleEdit\SubtitleEditFile.cs" />
-    <Compile Include="Classes\External\Unrar.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -337,10 +364,7 @@
     <Content Include="DLLs\unrar.dll" />
     <Content Include="Resources\sr1.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Classes\Renaming\" />
-    <Folder Include="Classes\TitleCache\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="ObjectListView\ObjectListView2008.csproj">
       <Project>{18FEDA0C-D147-4286-B39A-01204808106A}</Project>

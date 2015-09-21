@@ -20,11 +20,11 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("Series Renamer")]
-[assembly: AssemblyDescription("For all your serious series renaming needs!")]
+[assembly: AssemblyDescription("The (hopefully) improved Serious Renamer!")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Series Renamer")]
-[assembly: AssemblyCopyright("Copyright ©  2008-2009")]
+[assembly: AssemblyCopyright("Copyright ©  2008-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
